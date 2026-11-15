@@ -1,1 +1,1 @@
-CustomCamera: Pro Camera & QR
+ObsWifiCams: Pro Camera & QR

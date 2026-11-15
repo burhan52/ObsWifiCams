@@ -25,41 +25,41 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:importantForAccessibility="no"
-            app:implementationMode="performance"
+            app:implementationMode="compatible"
             app:scaleType="fillCenter" />
 
-        <com.customcamera.app.ui.GridOverlayView
+        <com.stratatechlabs.obswificams.ui.GridOverlayView
             android:id="@+id/gridOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
 
-        <com.customcamera.app.ui.LevelView
+        <com.stratatechlabs.obswificams.ui.LevelView
             android:id="@+id/levelView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
 
-        <com.customcamera.app.ui.BarcodeOverlayView
+        <com.stratatechlabs.obswificams.ui.BarcodeOverlayView
             android:id="@+id/barcodeOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
 
         <!-- Pro mode: in-focus edges while focusing manually. -->
-        <com.customcamera.app.ui.FocusPeakingView
+        <com.stratatechlabs.obswificams.ui.FocusPeakingView
             android:id="@+id/focusPeaking"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:importantForAccessibility="no"
             android:visibility="gone" />
 
-        <com.customcamera.app.ui.FocusIndicatorView
+        <com.stratatechlabs.obswificams.ui.FocusIndicatorView
             android:id="@+id/focusIndicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.customcamera.app.ui.ExposureSliderView
+        <com.stratatechlabs.obswificams.ui.ExposureSliderView
             android:id="@+id/exposureSlider"
             android:layout_width="40dp"
             android:layout_height="180dp"
@@ -110,7 +110,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/settingsButton"
-                style="@style/Widget.CustomCamera.IconButton"
+                style="@style/Widget.ObsWifiCams.IconButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -118,8 +118,26 @@
                 app:icon="@drawable/ic_settings" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/wifiShareButton"
+                style="@style/Widget.ObsWifiCams.IconButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_wifi_share"
+                app:icon="@drawable/ic_wifi" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/teaRewardButton"
+                style="@style/Widget.ObsWifiCams.IconButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_reward_tea"
+                app:icon="@drawable/ic_tea" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/flashButton"
-                style="@style/Widget.CustomCamera.IconButton"
+                style="@style/Widget.ObsWifiCams.IconButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -128,24 +146,37 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/timerButton"
-                style="@style/Widget.CustomCamera.TopBarText"
+                style="@style/Widget.ObsWifiCams.TopBarText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:contentDescription="@string/cd_timer_btn"
                 app:icon="@drawable/ic_timer"
                 tools:text="3s" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/aspectButton"
-                style="@style/Widget.CustomCamera.TopBarText"
+                android:id="@+id/videoQualityButton"
+                style="@style/Widget.ObsWifiCams.TopBarText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                tools:text="3:4" />
+                android:contentDescription="@string/cd_video_quality_btn"
+                android:visibility="gone"
+                tools:text="1080p"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/aspectButton"
+                style="@style/Widget.ObsWifiCams.TopBarText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/cd_aspect_btn"
+                tools:text="16:9" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/hdrButton"
-                style="@style/Widget.CustomCamera.TopBarText"
+                style="@style/Widget.ObsWifiCams.TopBarText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -154,7 +185,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/lensButton"
-                style="@style/Widget.CustomCamera.IconButton"
+                style="@style/Widget.ObsWifiCams.IconButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -163,11 +194,48 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/wifiShareChip"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_pill_scrim"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/cd_wifi_share"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="14dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topBar"
+            tools:visibility="visible">
+
+            <View
+                android:id="@+id/wifiShareDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/dot_record" />
+
+            <TextView
+                android:id="@+id/wifiShareText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFeatureSettings="tnum"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:textColor="@color/white"
+                tools:text="Wi-Fi: http://192.168.1.10:8080" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/recordingChip"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_record_chip"
+            android:contentDescription="@string/cd_recording_chip"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="12dp"
@@ -231,7 +299,7 @@
                 app:labelBehavior="gone" />
         </LinearLayout>
 
-        <com.customcamera.app.ui.HistogramView
+        <com.stratatechlabs.obswificams.ui.HistogramView
             android:id="@+id/histogram"
             android:layout_width="120dp"
             android:layout_height="64dp"
@@ -339,13 +407,13 @@
             app:tabMode="scrollable"
             app:tabRippleColor="@android:color/transparent"
             app:tabSelectedTextColor="@color/accent"
-            app:tabTextAppearance="@style/TextAppearance.CustomCamera.Mode"
+            app:tabTextAppearance="@style/TextAppearance.ObsWifiCams.Mode"
             app:tabTextColor="@color/on_surface_variant" />
 
         <!-- Photo while recording: sits where the mode tabs are (they are invisible during a recording). -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/snapshotButton"
-            style="@style/Widget.CustomCamera.IconButton"
+            style="@style/Widget.ObsWifiCams.IconButton"
             android:layout_width="@dimen/icon_button"
             android:layout_height="@dimen/icon_button"
             android:background="@drawable/bg_round_scrim"
@@ -389,7 +457,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/pauseButton"
-                    style="@style/Widget.CustomCamera.IconButton"
+                    style="@style/Widget.ObsWifiCams.IconButton"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_round_scrim"
@@ -398,7 +466,7 @@
                     app:icon="@drawable/ic_pause" />
             </FrameLayout>
 
-            <com.customcamera.app.ui.ShutterButton
+            <com.stratatechlabs.obswificams.ui.ShutterButton
                 android:id="@+id/shutterButton"
                 android:layout_width="@dimen/shutter_size"
                 android:layout_height="@dimen/shutter_size"
@@ -409,7 +477,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/flipButton"
-                style="@style/Widget.CustomCamera.IconButton"
+                style="@style/Widget.ObsWifiCams.IconButton"
                 android:layout_width="@dimen/thumb_size"
                 android:layout_height="@dimen/thumb_size"
                 android:background="@drawable/bg_round_scrim"

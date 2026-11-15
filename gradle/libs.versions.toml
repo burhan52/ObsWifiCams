@@ -1,14 +1,12 @@
 [versions]
-agp = "8.13.2"
+agp = "9.5.1"
 kotlin = "2.4.21"
-compileSdk = "36"
-minSdk = "26"
-targetSdk = "36"
 
-coreKtx = "1.18.0"
+coreKtx = "1.19.1"
 appcompat = "1.8.0"
 material = "1.14.0"
 activity = "1.13.0"
+fragment = "1.9.1"
 lifecycle = "2.11.0"
 constraintlayout = "2.2.2"
 recyclerview = "1.4.0"
@@ -19,19 +17,24 @@ exifinterface = "1.4.2"
 camerax = "1.6.2"
 mlkitBarcode = "17.3.0"
 coroutines = "1.11.0"
+playServicesAds = "25.5.0"
+googleServices = "4.6.0"
+firebaseBom = "35.2.0"
 
 junit = "4.13.2"
 androidxTestExtJunit = "1.3.0"
 androidxTestRunner = "1.7.0"
 androidxTestRules = "1.7.0"
 espresso = "3.7.0"
-uiautomator = "2.4.0"
+uiautomator = "2.4.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -49,6 +52,9 @@ camerax-video = { group = "androidx.camera", name = "camera-video", version.ref 
 camerax-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
 camerax-mlkit-vision = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "camerax" }
 mlkit-barcode = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcode" }
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -62,3 +68,4 @@ uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", versi
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

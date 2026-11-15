@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Lay the viewfinder out under display cutouts (API 27+). -->
-    <style name="Theme.CustomCamera.Viewfinder" parent="Base.Theme.CustomCamera.Viewfinder">
+    <style name="Theme.ObsWifiCams.Viewfinder" parent="Base.Theme.ObsWifiCams.Viewfinder">
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowLightNavigationBar">false</item>
     </style>
+    <style name="Theme.CustomCamera.Viewfinder" parent="Theme.ObsWifiCams.Viewfinder" />
 </resources>

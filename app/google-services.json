@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "154871734101",
+    "project_id": "obswificams",
+    "storage_bucket": "obswificams.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154871734101:android:68f4ff76074dfedda419dc",
+        "android_client_info": {
+          "package_name": "com.stratatechlabs.obswificams"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJCzIZ7UN-XRj4tkHDKSYcDDhiBqVWoLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154871734101:android:68f4ff76074dfedda419dc",
+        "android_client_info": {
+          "package_name": "com.stratatechlabs.obswificams.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJCzIZ7UN-XRj4tkHDKSYcDDhiBqVWoLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.customcamera.app.gallery.SquareFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.stratatechlabs.obswificams.gallery.SquareFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -46,4 +46,4 @@
             android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
             android:textColor="@color/white" />
     </LinearLayout>
-</com.customcamera.app.gallery.SquareFrameLayout>
+</com.stratatechlabs.obswificams.gallery.SquareFrameLayout>

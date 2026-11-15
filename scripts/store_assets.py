@@ -73,7 +73,7 @@ def feature_svg() -> str:
   <rect width="1024" height="500" fill="url(#bg)"/>
   <rect width="1024" height="500" fill="url(#glow)"/>
   <g transform="translate({tx:.2f},{ty:.2f}) scale({scale:.4f})">{lens_mark()}</g>
-  <text x="430" y="215" font-family="Roboto Flex" font-weight="800" font-size="76" fill="#F2F2F4">CustomCamera</text>
+  <text x="430" y="215" font-family="Roboto Flex" font-weight="800" font-size="76" fill="#F2F2F4">ObsWifiCams</text>
   <text x="432" y="275" font-family="Roboto Flex" font-weight="500" font-size="30" fill="{ACCENT}">Pro controls · Night &amp; Portrait · QR</text>
   <text x="432" y="320" font-family="Roboto Flex" font-weight="400" font-size="26" fill="#B4B4BC">Private by design. No ads. No network.</text>
 </svg>

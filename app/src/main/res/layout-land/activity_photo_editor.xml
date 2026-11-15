@@ -50,7 +50,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <!-- Padding keeps the outer half of every 48dp handle target on screen. -->
-                <com.customcamera.app.gallery.CropOverlayView
+                <com.stratatechlabs.obswificams.gallery.CropOverlayView
                     android:id="@+id/cropView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -105,7 +105,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/rotateButton"
-                            style="@style/Widget.CustomCamera.EditorAction"
+                            style="@style/Widget.ObsWifiCams.EditorAction"
                             android:layout_width="0dp"
                             android:maxLines="1"
                             android:paddingStart="4dp"
@@ -118,7 +118,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/flipButton"
-                            style="@style/Widget.CustomCamera.EditorAction"
+                            style="@style/Widget.ObsWifiCams.EditorAction"
                             android:layout_width="0dp"
                             android:maxLines="1"
                             android:paddingStart="4dp"
@@ -131,7 +131,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/resetButton"
-                            style="@style/Widget.CustomCamera.EditorAction"
+                            style="@style/Widget.ObsWifiCams.EditorAction"
                             android:layout_width="0dp"
                             android:maxLines="1"
                             android:paddingStart="4dp"

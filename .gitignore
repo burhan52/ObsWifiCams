@@ -12,10 +12,11 @@ app/build/
 *.iml
 .DS_Store
 
-# Signing material — never commit
+# Signing material and environment secrets — never commit
 *.jks
 *.keystore
 keystore.properties
+.env
 
 # Store-listing scratch renders
 /dist/

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.CustomCamera" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.ObsWifiCams" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">@color/on_accent</item>
         <item name="colorPrimaryContainer">#FF4A3C00</item>
@@ -23,19 +23,19 @@
     </style>
 
     <!-- Viewfinder: pure black. API 27+ adds cutout handling in values-v27. -->
-    <style name="Theme.CustomCamera.Viewfinder" parent="Base.Theme.CustomCamera.Viewfinder" />
-    <style name="Base.Theme.CustomCamera.Viewfinder" parent="Theme.CustomCamera">
+    <style name="Theme.ObsWifiCams.Viewfinder" parent="Base.Theme.ObsWifiCams.Viewfinder" />
+    <style name="Base.Theme.ObsWifiCams.Viewfinder" parent="Theme.ObsWifiCams">
         <item name="android:windowBackground">@color/black</item>
     </style>
 
     <!-- Cold-start splash (core-splashscreen) handing off to the viewfinder theme. -->
-    <style name="Theme.CustomCamera.Starting" parent="Theme.SplashScreen">
+    <style name="Theme.ObsWifiCams.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/black</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <item name="postSplashScreenTheme">@style/Theme.CustomCamera.Viewfinder</item>
+        <item name="postSplashScreenTheme">@style/Theme.ObsWifiCams.Viewfinder</item>
     </style>
 
-    <style name="Widget.CustomCamera.IconButton" parent="Widget.Material3.Button.IconButton">
+    <style name="Widget.ObsWifiCams.IconButton" parent="Widget.Material3.Button.IconButton">
         <item name="iconTint">@color/white</item>
         <item name="iconSize">24dp</item>
         <item name="iconGravity">textStart</item>
@@ -44,7 +44,7 @@
         <item name="android:minHeight">@dimen/icon_button</item>
     </style>
 
-    <style name="Widget.CustomCamera.TopBarText" parent="Widget.Material3.Button.TextButton">
+    <style name="Widget.ObsWifiCams.TopBarText" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">@color/white</item>
         <item name="iconTint">@color/white</item>
         <item name="android:textSize">13sp</item>
@@ -57,13 +57,13 @@
         <item name="iconGravity">textStart</item>
     </style>
 
-    <style name="TextAppearance.CustomCamera.Mode" parent="TextAppearance.Material3.LabelLarge">
+    <style name="TextAppearance.ObsWifiCams.Mode" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.08</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Widget.CustomCamera.ProChip" parent="Widget.Material3.Chip.Filter">
+    <style name="Widget.ObsWifiCams.ProChip" parent="Widget.Material3.Chip.Filter">
         <item name="chipBackgroundColor">@color/pro_chip_bg</item>
         <item name="android:textColor">@color/pro_chip_text</item>
         <item name="chipStrokeWidth">0dp</item>
@@ -76,4 +76,14 @@
         <item name="textStartPadding">2dp</item>
         <item name="textEndPadding">2dp</item>
     </style>
+
+    <!-- Backward-compatibility aliases -->
+    <style name="Theme.CustomCamera" parent="Theme.ObsWifiCams" />
+    <style name="Theme.CustomCamera.Viewfinder" parent="Theme.ObsWifiCams.Viewfinder" />
+    <style name="Base.Theme.CustomCamera.Viewfinder" parent="Base.Theme.ObsWifiCams.Viewfinder" />
+    <style name="Theme.CustomCamera.Starting" parent="Theme.ObsWifiCams.Starting" />
+    <style name="Widget.CustomCamera.IconButton" parent="Widget.ObsWifiCams.IconButton" />
+    <style name="Widget.CustomCamera.TopBarText" parent="Widget.ObsWifiCams.TopBarText" />
+    <style name="TextAppearance.CustomCamera.Mode" parent="TextAppearance.ObsWifiCams.Mode" />
+    <style name="Widget.CustomCamera.ProChip" parent="Widget.ObsWifiCams.ProChip" />
 </resources>

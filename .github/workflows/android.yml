@@ -75,9 +75,9 @@ jobs:
           short=${GITHUB_SHA::8}
           apksigner="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
           mkdir -p dist
-          cp app/build/outputs/apk/debug/app-debug.apk "dist/CustomCamera-v$version-$short-debug.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/ObsWifiCams-v$version-$short-debug.apk"
           if [ "$SIGNED" = "true" ]; then
-            cp app/build/outputs/apk/release/app-release.apk "dist/CustomCamera-v$version-$short.apk"
+            cp app/build/outputs/apk/release/app-release.apk "dist/ObsWifiCams-v$version-$short.apk"
           fi
           for apk in dist/*.apk; do
             echo "== $apk"
@@ -103,7 +103,7 @@ jobs:
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: customcamera-v${{ steps.apks.outputs.version }}-apk
+          name: obswificams-v${{ steps.apks.outputs.version }}-apk
           path: dist/
           retention-days: 30
           if-no-files-found: error

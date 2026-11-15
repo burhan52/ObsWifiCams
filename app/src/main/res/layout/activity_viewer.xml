@@ -70,7 +70,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/shareButton"
-            style="@style/Widget.CustomCamera.IconButton"
+            style="@style/Widget.ObsWifiCams.IconButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -79,7 +79,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cropButton"
-            style="@style/Widget.CustomCamera.IconButton"
+            style="@style/Widget.ObsWifiCams.IconButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -89,7 +89,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/editButton"
-            style="@style/Widget.CustomCamera.IconButton"
+            style="@style/Widget.ObsWifiCams.IconButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -98,7 +98,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/infoButton"
-            style="@style/Widget.CustomCamera.IconButton"
+            style="@style/Widget.ObsWifiCams.IconButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -107,7 +107,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/deleteButton"
-            style="@style/Widget.CustomCamera.IconButton"
+            style="@style/Widget.ObsWifiCams.IconButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

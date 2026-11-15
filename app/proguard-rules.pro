@@ -1,7 +1,7 @@
-# CustomCamera R8 rules.
+# ObsWifiCams R8 rules.
 #
 # CameraX, ML Kit, Material and AndroidX ship their own consumer rules, so the
-# app needs very few. Do NOT add a blanket -keep for com.customcamera.app.**:
+# app needs very few. Do NOT add a blanket -keep for com.stratatechlabs.obswificams.**:
 # that disables shrinking/obfuscation for all app code.
 
 # Keep line numbers so Play Console crash stack traces can be deobfuscated with
@@ -10,10 +10,14 @@
 -renamesourcefileattribute SourceFile
 
 # Preference fragments are instantiated reflectively from XML by class name.
--keep class com.customcamera.app.settings.SettingsFragment { <init>(); }
+-keep class com.stratatechlabs.obswificams.settings.SettingsFragment { <init>(); }
 
 # Strip verbose/debug logging from shrunk builds (warnings and errors are kept).
 -assumenosideeffects class android.util.Log {
     public static int v(...);
     public static int d(...);
 }
+
+# DEX code optimizations: flatten package hierarchy and allow member access widening for better inlining
+-repackageclasses ''
+-allowaccessmodification

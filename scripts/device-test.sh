@@ -15,7 +15,7 @@ SERIAL="${1:?usage: device-test.sh <serial> [--keep]}"
 KEEP="${2:-}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APK="$ROOT/app/build/outputs/apk"
-ID=tribixbite.customcamera
+ID=com.stratatechlabs.obswificams
 adb_() { adb -s "$SERIAL" "$@"; }
 
 echo "== $(adb_ shell getprop ro.product.model) / API $(adb_ shell getprop ro.build.version.sdk)"
@@ -34,7 +34,7 @@ if [ "$result" -ne 0 ]; then
         n > 0 { stack = stack "    " $0 "\n"; n-- }
         /^INSTRUMENTATION_STATUS_CODE: -2/ { printf "%s", stack; stack = "" }
         /^INSTRUMENTATION_STATUS_CODE: / { stack = "" }'
-    log="${TMPDIR:-/tmp}/customcamera-instrument-$(date +%Y%m%d-%H%M%S).log"
+    log="${TMPDIR:-/tmp}/obswificams-instrument-$(date +%Y%m%d-%H%M%S).log"
     echo "$out" > "$log" && echo "  full output: $log"
 fi
 
@@ -42,7 +42,7 @@ echo "== staging (R8) cold start"
 adb_ install -r -g "$APK/staging/app-staging.apk" >/dev/null
 # Shared device: filter logcat from now on instead of clearing other agents' logs.
 since=$(adb_ shell "date +'%m-%d %H:%M:%S.000'")
-adb_ shell am start -W -n "$ID.staging/com.customcamera.app.ui.CameraActivity" | rg 'TotalTime|Status'
+adb_ shell am start -W -n "$ID.staging/com.stratatechlabs.obswificams.ui.CameraActivity" | rg 'TotalTime|Status'
 sleep 4
 if adb_ shell pidof "$ID.staging" >/dev/null && ! adb_ logcat -d -T "$since" | rg -q "Process: $ID.staging"; then
     echo "  staging alive, no crash"

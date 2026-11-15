@@ -3,12 +3,53 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Lens body -->
-    <path android:fillColor="#FFFFD54F" android:pathData="M28,54 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 Z" />
-    <path android:fillColor="#FF16161A" android:pathData="M34,54 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0 Z" />
-    <!-- Aperture opening and blade edges -->
-    <path android:fillColor="#FF2C2C34" android:pathData="M62.66,59.00 L54.00,64.00 L45.34,59.00 L45.34,49.00 L54.00,44.00 L62.66,49.00 Z" />
-    <path android:strokeColor="#FF3A3A44" android:strokeWidth="1.6" android:strokeLineCap="round" android:pathData="M62.66,59.00 L62.03,71.22 M54.00,64.00 L43.10,69.56 M45.34,59.00 L35.07,52.34 M45.34,49.00 L45.97,36.78 M54.00,44.00 L64.90,38.44 M62.66,49.00 L72.93,55.66" />
-    <!-- Specular highlight -->
-    <path android:fillColor="#CCFFFFFF" android:pathData="M45.5,47.5 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 Z" />
+
+    <!-- Wi-Fi broadcast wave arcs (OBS Streaming) -->
+    <!-- Outer wave -->
+    <path
+        android:strokeColor="#FF00E5FF"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:pathData="M34,31 C40.5,25.5 47,23 54,23 C61,23 67.5,25.5 74,31" />
+
+    <!-- Inner wave -->
+    <path
+        android:strokeColor="#FFFFD54F"
+        android:strokeWidth="3.0"
+        android:strokeLineCap="round"
+        android:pathData="M40.5,37 C44.5,33.5 49,32 54,32 C59,32 63.5,33.5 67.5,37" />
+
+    <!-- Modern camera body outline & chassis -->
+    <path
+        android:fillColor="#FF23232B"
+        android:strokeColor="#FF3A3A48"
+        android:strokeWidth="2.2"
+        android:pathData="M31,43 L41,43 L44,40 L64,40 L67,43 L77,43 C80.3,43 83,45.7 83,49 L83,78 C83,81.3 80.3,84 77,84 L31,84 C27.7,84 25,81.3 25,78 L25,49 C25,45.7 27.7,43 31,43 Z" />
+
+    <!-- Recording indicator dot -->
+    <path
+        android:fillColor="#FFFF3B30"
+        android:pathData="M75,49 A2.5,2.5 0 1,0 80,49 A2.5,2.5 0 1,0 75,49 Z" />
+
+    <!-- Pro lens outer ring -->
+    <path
+        android:fillColor="#FF181820"
+        android:strokeColor="#FFFFD54F"
+        android:strokeWidth="2.2"
+        android:pathData="M39,63 A15,15 0 1,0 69,63 A15,15 0 1,0 39,63 Z" />
+
+    <!-- Inner glass & aperture ring -->
+    <path
+        android:fillColor="#FF0C0C12"
+        android:pathData="M44,63 A10,10 0 1,0 64,63 A10,10 0 1,0 44,63 Z" />
+
+    <!-- Optical iris blades & reflection core -->
+    <path
+        android:fillColor="#FF00E5FF"
+        android:pathData="M49,63 A5,5 0 1,0 59,63 A5,5 0 1,0 49,63 Z" />
+
+    <!-- Specular highlight glint -->
+    <path
+        android:fillColor="#CCFFFFFF"
+        android:pathData="M51,59.5 A1.8,1.8 0 1,0 54.6,59.5 A1.8,1.8 0 1,0 51,59.5 Z" />
 </vector>

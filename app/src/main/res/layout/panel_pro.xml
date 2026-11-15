@@ -43,7 +43,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/proAuto"
-            style="@style/Widget.CustomCamera.TopBarText"
+            style="@style/Widget.ObsWifiCams.TopBarText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/pro_auto" />
@@ -77,31 +77,31 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipIso"
-                style="@style/Widget.CustomCamera.ProChip"
+                style="@style/Widget.ObsWifiCams.ProChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipShutter"
-                style="@style/Widget.CustomCamera.ProChip"
+                style="@style/Widget.ObsWifiCams.ProChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipWb"
-                style="@style/Widget.CustomCamera.ProChip"
+                style="@style/Widget.ObsWifiCams.ProChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFocus"
-                style="@style/Widget.CustomCamera.ProChip"
+                style="@style/Widget.ObsWifiCams.ProChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipEv"
-                style="@style/Widget.CustomCamera.ProChip"
+                style="@style/Widget.ObsWifiCams.ProChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </com.google.android.material.chip.ChipGroup>

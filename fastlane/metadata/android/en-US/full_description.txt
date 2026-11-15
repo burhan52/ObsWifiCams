@@ -1,4 +1,4 @@
-CustomCamera is a fast, private camera with real manual controls — no ads, no account, and no network access at all.
+ObsWifiCams is a fast camera with real manual controls, professional photo & video capture, and local Wi-Fi live streaming.
 
 <b>Pro mode with real sensor control</b>
 • Set ISO, shutter speed, white balance and manual focus directly on the camera sensor
@@ -36,10 +36,9 @@ CustomCamera is a fast, private camera with real manual controls — no ads, no 
 • Scanning runs entirely on your phone
 
 <b>Private by design</b>
-• Photos and videos are saved to your gallery under DCIM/CustomCamera
+• Photos and videos are saved to your gallery under DCIM/ObsWifiCams
 • Location tagging is off unless you turn it on, and is only stored inside your files
-• The app cannot access the internet and collects no data
 
-Works with other apps: CustomCamera can take photos and videos when another app asks for the camera.
+Works with other apps: ObsWifiCams can take photos and videos when another app asks for the camera.
 
 Some features depend on what your phone's camera hardware and Android version support; unsupported options are hidden automatically.

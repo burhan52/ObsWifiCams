@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CustomCamera</string>
+    <string name="app_name">ObsWifiCams</string>
 
     <!-- Modes -->
     <string name="mode_night">Night</string>
@@ -18,6 +18,7 @@
     <string name="cd_flash_on">Flash on</string>
     <string name="cd_torch_on">Torch on</string>
     <string name="cd_torch_strength">Torch brightness</string>
+    <string name="cd_wifi_share">Wi-Fi camera sharing</string>
     <!-- Shown while the shutter is held: number of photos taken in the burst so far. -->
     <string name="burst_count">Burst · %1$d</string>
     <string name="error_recording_empty">Nothing was recorded: the camera had not started yet. Try again.</string>
@@ -85,9 +86,53 @@
     <string name="lens_item_focal">%1$s · %2$s %3$dmm · camera %4$s</string>
     <string name="lens_multi">multi-lens</string>
 
+    <!-- Wi-Fi Camera Sharing -->
+    <string name="wifi_share_title">Wi-Fi Camera Sharing</string>
+    <string name="wifi_share_desc">Stream your camera live to any web browser, OBS Studio, and VLC over local Wi-Fi.</string>
+    <string name="wifi_share_enable">Share Camera on Wi-Fi</string>
+    <string name="wifi_share_browser_url">Web Browser (PC / Mac / Mobile)</string>
+    <string name="wifi_share_audio_url">Live Audio Stream (WAV / OBS / VLC)</string>
+    <string name="wifi_share_obs_url">OBS Studio / VLC Video Stream</string>
+    <string name="wifi_share_obs_clean_url">OBS Clean Browser Source</string>
+    <string name="wifi_share_open_browser">Open</string>
+    <string name="wifi_share_copy">Copy</string>
+    <string name="wifi_share_copied">Stream URL copied to clipboard</string>
+    <string name="wifi_share_no_wifi">Wi-Fi not connected. Connect to a Wi-Fi network or enable Mobile Hotspot to stream.</string>
+    <string name="wifi_share_waiting">Waiting for viewers…</string>
+    <string name="wifi_share_clients">%1$d viewer(s) connected</string>
+    <string name="wifi_share_quality_title">Stream Resolution</string>
+    <string name="wifi_share_quality_auto">Auto Resolution</string>
+    <string name="wifi_share_quality_4k">4K UHD (2160p)</string>
+    <string name="wifi_share_quality_2k">2K QHD (1440p)</string>
+    <string name="wifi_share_quality_1080p">1080p FHD</string>
+    <string name="wifi_share_quality_720p">720p HD (Recommended)</string>
+    <string name="wifi_share_quality_480p">480p SD</string>
+    <string name="wifi_share_fps_title">Frame Rate (FPS)</string>
+    <string name="wifi_share_fps_auto">Auto FPS</string>
+    <string name="wifi_share_fps_120">120 FPS</string>
+    <string name="wifi_share_fps_60">60 FPS</string>
+    <string name="wifi_share_fps_30">30 FPS</string>
+    <string name="wifi_share_fps_24">24 FPS</string>
+    <string name="wifi_share_fps_15">15 FPS</string>
+    <string name="wifi_share_keep_awake">Keep screen awake while streaming</string>
+    <string name="wifi_share_dim_screen">Dim screen (saves battery)</string>
+    <string name="wifi_share_auto_adjust">Auto-adjust for smooth streaming</string>
+    <string name="wifi_share_auto_adjust_desc">Dynamically adapts compression to prevent stutter and lag</string>
+    <string name="wifi_share_live_chip">Wi-Fi LIVE · %1$s</string>
+    <string name="wifi_share_port_label">Port: %1$d</string>
+    <string name="wifi_share_rotation_title">Stream Orientation / Rotation</string>
+    <string name="wifi_share_rot_0">0° Normal</string>
+    <string name="wifi_share_rot_90">90° CW</string>
+    <string name="wifi_share_rot_180">180°</string>
+    <string name="wifi_share_rot_270">270° CCW</string>
+    <string name="wifi_share_flash_toggle">Flashlight / Torch</string>
+    <string name="wifi_share_flash_on">Flash On</string>
+    <string name="wifi_share_flash_off">Flash Off</string>
+    <string name="wifi_share_flash_unavailable">Flash not available on this device</string>
+
     <!-- Permissions -->
     <string name="permission_title">Camera access needed</string>
-    <string name="permission_body">CustomCamera needs the camera to show the viewfinder and take photos. Nothing leaves your device.</string>
+    <string name="permission_body">ObsWifiCams needs the camera to show the viewfinder and take photos. Nothing leaves your device.</string>
     <string name="permission_grant">Allow camera</string>
     <string name="permission_settings">Open app settings</string>
     <string name="permission_audio_denied">Recording without sound — microphone permission denied</string>
@@ -137,7 +182,7 @@
     <!-- Gallery -->
     <string name="gallery_title">Gallery</string>
     <string name="gallery_empty_title">No captures yet</string>
-    <string name="gallery_empty_body">Photos and videos you take with CustomCamera appear here.</string>
+    <string name="gallery_empty_body">Photos and videos you take with ObsWifiCams appear here.</string>
     <plurals name="gallery_count">
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
@@ -211,6 +256,33 @@
     <string name="pref_licenses">Open-source licenses</string>
     <string name="pref_reset">Reset settings</string>
     <string name="pref_reset_done">Settings reset to defaults</string>
-    <string name="licenses_body">CustomCamera is released under the MIT License.\n\nIt uses the following open-source libraries, all under the Apache License 2.0:\n• AndroidX (CameraX, AppCompat, Core, Lifecycle, Preference, RecyclerView, ViewPager2, ExifInterface, SplashScreen)\n• Material Components for Android\n• Kotlin and kotlinx.coroutines\n\nBarcode scanning uses Google ML Kit, provided under the ML Kit Terms of Service.</string>
-    <string name="privacy_url" translatable="false">https://github.com/tribixbite/CustomCamera/blob/main/PRIVACY.md</string>
+    <string name="licenses_body">ObsWifiCams is released under the MIT License.\n\nIt uses the following open-source libraries, all under the Apache License 2.0:\n• AndroidX (CameraX, AppCompat, Core, Lifecycle, Preference, RecyclerView, ViewPager2, ExifInterface, SplashScreen)\n• Material Components for Android\n• Kotlin and kotlinx.coroutines\n\nBarcode scanning uses Google ML Kit, provided under the ML Kit Terms of Service.</string>
+    <string name="privacy_url" translatable="false">https://github.com/tribixbite/ObsWifiCams/blob/main/PRIVACY.md</string>
+
+    <!-- Tea Reward & Support -->
+    <string name="cd_reward_tea">Reward Tea</string>
+    <string name="reward_tea_thanks">🍵 Thank you for the tea! Your support helps us keep improving!</string>
+    <string name="reward_tea_loading">Loading tea reward… Please try again in a moment.</string>
+    <string name="reward_tea_remote_received">🍵 Received a cup of tea from remote viewer! Thank you!</string>
+
+    <!-- Wi-Fi Stream Filters -->
+    <string name="wifi_share_filters_title">Filters &amp; Color Grading</string>
+    <string name="wifi_filter_none">Normal</string>
+    <string name="wifi_filter_bluray">💿 Blu-Ray</string>
+    <string name="wifi_filter_tealorange">🎬 Teal &amp; Orange</string>
+    <string name="wifi_filter_vivid">🌈 Vivid</string>
+    <string name="wifi_filter_vintage">🎞 Vintage</string>
+    <string name="wifi_filter_noir">🕶 Noir B&amp;W</string>
+    <string name="wifi_filter_cyberpunk">⚡ Cyberpunk</string>
+    <string name="wifi_filter_invert">🔄 Invert</string>
+
+    <!-- Accessibility descriptions for Level A/AA compliance -->
+    <string name="cd_recording_chip">Recording active</string>
+    <string name="cd_aspect_btn">Aspect ratio</string>
+    <string name="cd_video_quality_btn">Video resolution</string>
+    <string name="cd_timer_btn">Self-timer</string>
+    <string name="wifi_share_copy_browser_url">Copy web browser stream URL</string>
+    <string name="wifi_share_copy_obs_url">Copy OBS video stream URL</string>
+    <string name="wifi_share_copy_clean_url">Copy OBS clean stream URL</string>
+    <string name="wifi_share_copy_audio_url">Copy audio stream URL</string>
 </resources>

@@ -3,7 +3,41 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M28,54 a26,26 0 1,0 52,0 a26,26 0 1,0 -52,0 Z M34,54 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0 Z" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M62.66,59.00 L54.00,64.00 L45.34,59.00 L45.34,49.00 L54.00,44.00 L62.66,49.00 Z" />
-    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round" android:pathData="M62.66,59.00 L62.03,71.22 M54.00,64.00 L43.10,69.56 M45.34,59.00 L35.07,52.34 M45.34,49.00 L45.97,36.78 M54.00,44.00 L64.90,38.44 M62.66,49.00 L72.93,55.66" />
+
+    <!-- Wi-Fi broadcast wave arcs (Themed) -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:pathData="M34,31 C40.5,25.5 47,23 54,23 C61,23 67.5,25.5 74,31" />
+
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.0"
+        android:strokeLineCap="round"
+        android:pathData="M40.5,37 C44.5,33.5 49,32 54,32 C59,32 63.5,33.5 67.5,37" />
+
+    <!-- Camera body outline & chassis -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M31,43 L41,43 L44,40 L64,40 L67,43 L77,43 C80.3,43 83,45.7 83,49 L83,78 C83,81.3 80.3,84 77,84 L31,84 C27.7,84 25,81.3 25,78 L25,49 C25,45.7 27.7,43 31,43 Z" />
+
+    <!-- Indicator dot -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M75,49 A2.5,2.5 0 1,0 80,49 A2.5,2.5 0 1,0 75,49 Z" />
+
+    <!-- Lens ring -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.4"
+        android:pathData="M39,63 A15,15 0 1,0 69,63 A15,15 0 1,0 39,63 Z" />
+
+    <!-- Lens aperture iris -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M48,63 A6,6 0 1,0 60,63 A6,6 0 1,0 48,63 Z" />
 </vector>
