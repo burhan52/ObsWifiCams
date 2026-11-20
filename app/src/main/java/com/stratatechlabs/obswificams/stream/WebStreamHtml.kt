@@ -498,7 +498,7 @@ object WebStreamHtml {
             <span class="control-label">Save To:</span>
             <div class="chip-group" id="saveDestChips">
               <div class="chip active" data-dest="phone" onclick="setSaveDestination('phone')" title="Record to Mobile gallery">📱 Mobile</div>
-              <div class="chip" data-dest="both" onclick="setSaveDestination('both')" title="Save to Mobile gallery and auto-download to PC">📱💻 Mobile PC</div>
+              <div class="chip" data-dest="both" onclick="setSaveDestination('both')" title="Save to Mobile gallery and auto-download to PC">📱💻 Mobile + PC</div>
             </div>
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
