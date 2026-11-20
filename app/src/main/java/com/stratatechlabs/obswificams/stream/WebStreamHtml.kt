@@ -497,14 +497,13 @@ object WebStreamHtml {
           <div class="control-row" style="margin-bottom:10px;">
             <span class="control-label">Save To:</span>
             <div class="chip-group" id="saveDestChips">
-              <div class="chip active" data-dest="pc" onclick="setSaveDestination('pc')" title="Record in native MP4 format and save directly to this PC">💻 PC (MP4)</div>
-              <div class="chip" data-dest="phone" onclick="setSaveDestination('phone')" title="Record to Phone gallery">📱 Phone</div>
-              <div class="chip" data-dest="both" onclick="setSaveDestination('both')" title="Save MP4 to Phone gallery and auto-download to this PC">⭐ Both (PC + Phone)</div>
+              <div class="chip active" data-dest="phone" onclick="setSaveDestination('phone')" title="Record to Mobile gallery">📱 Mobile</div>
+              <div class="chip" data-dest="both" onclick="setSaveDestination('both')" title="Save to Mobile gallery and auto-download to PC">📱💻 Mobile PC</div>
             </div>
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
             <button class="btn-action btn-capture" id="captureBtn" onclick="takeSnapshot()">📸 Take Photo</button>
-            <button class="btn-action chip-record" id="recordBtn" onclick="toggleRecording()">⏺ Record MP4 (PC)</button>
+            <button class="btn-action chip-record" id="recordBtn" onclick="toggleRecording()">⏺ Record Video (Mobile)</button>
           </div>
           <div id="phoneVideoRow" style="margin-top:8px; display:none;">
             <a id="downloadPhoneVideoBtn" href="/latest-video.mp4" download class="btn-action" style="display:block; text-align:center; text-decoration:none; background:#1e293b; color:var(--accent); border:1px solid var(--accent); padding:6px 10px; font-size:0.8rem; border-radius:8px;">
@@ -936,10 +935,12 @@ object WebStreamHtml {
       return fetch(url, { method: 'POST' }).then(r => r.json()).catch(() => ({}));
     }
 
-    // Save destination: 'pc', 'phone', or 'both'
-    let saveDestination = localStorage.getItem('obs_save_dest') || 'pc';
+    // Save destination: 'phone' (Mobile) or 'both' (Mobile PC)
+    let saveDestination = localStorage.getItem('obs_save_dest') || 'phone';
+    if (saveDestination === 'pc') saveDestination = 'phone';
 
     function setSaveDestination(dest) {
+      if (dest !== 'both') dest = 'phone';
       saveDestination = dest;
       try { localStorage.setItem('obs_save_dest', dest); } catch(e) {}
       document.querySelectorAll('#saveDestChips .chip').forEach(c => {
@@ -953,14 +954,12 @@ object WebStreamHtml {
       const recBtn = document.getElementById('recordBtn');
       if (isPcRecording || isPhoneRecording || isStartingRecording) return;
       if (capBtn) {
-        if (saveDestination === 'pc') capBtn.innerText = '📸 Take Photo (PC)';
-        else if (saveDestination === 'phone') capBtn.innerText = '📸 Take Photo (Phone)';
-        else capBtn.innerText = '📸 Take Photo (Both)';
+        if (saveDestination === 'both') capBtn.innerText = '📸 Take Photo (Mobile PC)';
+        else capBtn.innerText = '📸 Take Photo (Mobile)';
       }
       if (recBtn) {
-        if (saveDestination === 'pc') recBtn.innerText = '⏺ Record MP4 (PC)';
-        else if (saveDestination === 'phone') recBtn.innerText = '⏺ Record Video (Phone)';
-        else recBtn.innerText = '⏺ Record MP4 (Both)';
+        if (saveDestination === 'both') recBtn.innerText = '⏺ Record MP4 (Mobile PC)';
+        else recBtn.innerText = '⏺ Record Video (Mobile)';
       }
     }
 
@@ -973,11 +972,11 @@ object WebStreamHtml {
       if (dest === 'phone' || dest === 'both') {
         postApi('/api/photo');
         if (dest === 'phone') {
-          showToast('📸 Photo captured on Phone');
+          showToast('📸 Photo captured on Mobile');
         }
       }
 
-      if (dest === 'pc' || dest === 'both') {
+      if (dest === 'both') {
         await saveSnapshotToPc();
       }
 
@@ -1370,13 +1369,9 @@ object WebStreamHtml {
         if (recTimer) {
           recTimer.style.display = 'inline';
           let sec = phoneRecordingSeconds;
-          let label = 'REC (MP4)';
+          let label = 'REC (Mobile)';
           if (saveDestination === 'both') {
-            label = 'REC (PC + Phone)';
-          } else if (saveDestination === 'pc') {
-            label = 'REC (PC MP4)';
-          } else {
-            label = 'REC (Phone)';
+            label = 'REC (Mobile PC)';
           }
           if (isStartingRecording && !isPhoneRecording) {
             label = 'REC (Starting...)';
@@ -1700,7 +1695,7 @@ object WebStreamHtml {
             const pRow = document.getElementById('phoneVideoRow');
             if (pRow) pRow.style.display = 'block';
 
-            if (saveDestination === 'pc' || saveDestination === 'both') {
+            if (saveDestination === 'both') {
               showToast('💾 Video finalized! Downloading MP4 to PC...');
               setTimeout(() => {
                 const now = new Date();
@@ -1709,7 +1704,7 @@ object WebStreamHtml {
                 downloadUrl('/latest-video.mp4', filename);
               }, 500);
             } else {
-              showToast('📱 Video saved to Phone gallery! <a href="/latest-video.mp4" download style="color:var(--accent);text-decoration:underline;margin-left:4px;">Download MP4 to PC</a>');
+              showToast('📱 Video saved to Mobile gallery! <a href="/latest-video.mp4" download style="color:var(--accent);text-decoration:underline;margin-left:4px;">Download MP4 to PC</a>');
             }
           }
 
