@@ -251,6 +251,28 @@ class WifiCameraServerTest {
     }
 
     @Test
+    fun `api photo and capture trigger callbacks`() {
+        val urlPhoto = URL("http://127.0.0.1:$serverPort/api/photo")
+        val connPhoto = urlPhoto.openConnection() as HttpURLConnection
+        connPhoto.requestMethod = "POST"
+        connPhoto.connectTimeout = 1000
+        connPhoto.readTimeout = 1000
+        assertEquals(200, connPhoto.responseCode)
+        assertTrue(captureCalled.get())
+        connPhoto.disconnect()
+
+        captureCalled.set(false)
+        val urlCapture = URL("http://127.0.0.1:$serverPort/api/capture")
+        val connCapture = urlCapture.openConnection() as HttpURLConnection
+        connCapture.requestMethod = "POST"
+        connCapture.connectTimeout = 1000
+        connCapture.readTimeout = 1000
+        assertEquals(200, connCapture.responseCode)
+        assertTrue(captureCalled.get())
+        connCapture.disconnect()
+    }
+
+    @Test
     fun `api zoom parses ratio parameter and triggers callback`() {
         val url = URL("http://127.0.0.1:$serverPort/api/zoom?ratio=2.5")
         val conn = url.openConnection() as HttpURLConnection

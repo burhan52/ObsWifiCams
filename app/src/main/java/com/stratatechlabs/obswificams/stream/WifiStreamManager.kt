@@ -25,7 +25,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import android.net.Uri
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -102,6 +104,9 @@ class WifiStreamManager(
     private var audioStreamer: WifiAudioStreamer? = null
     private val latestSnapshot = AtomicReference<ByteArray?>(null)
 
+    @Volatile
+    var latestVideoUri: Uri? = null
+
     private var targetQuality: StreamQuality = settings.wifiShareQuality
     private var effectiveQuality: StreamQuality = if (settings.wifiShareQuality == StreamQuality.AUTO) StreamQuality.HD_720P else settings.wifiShareQuality
     private var targetFps: StreamFps = settings.wifiShareFps
@@ -122,6 +127,20 @@ class WifiStreamManager(
     private var lastFpsCalcTime = SystemClock.uptimeMillis()
     private val isEncoding = AtomicBoolean(false)
 
+    private fun queryLatestVideoUri(): Uri? = runCatching {
+        val collection = com.stratatechlabs.obswificams.gallery.MediaStoreHelper.videoCollection()
+        val projection = arrayOf(android.provider.MediaStore.MediaColumns._ID)
+        val sortOrder = "${android.provider.MediaStore.MediaColumns.DATE_ADDED} DESC"
+        context.contentResolver.query(collection, projection, null, null, sortOrder)?.use { c ->
+            if (c.moveToFirst()) {
+                val id = c.getLong(c.getColumnIndexOrThrow(android.provider.MediaStore.MediaColumns._ID))
+                android.content.ContentUris.withAppendedId(collection, id).also {
+                    latestVideoUri = it
+                }
+            } else null
+        }
+    }.getOrNull()
+
     fun startStreaming(port: Int = settings.wifiSharePort, quality: StreamQuality = settings.wifiShareQuality): Boolean {
         if (_state.value.isStreaming) return true
 
@@ -141,6 +160,21 @@ class WifiStreamManager(
 
         val serverCallbacks = object : WifiCameraServer.ServerCallbacks {
             override fun getLatestSnapshot(): ByteArray? = latestSnapshot.get()
+
+            @Suppress("Recycle")
+            override fun openLatestVideoStream(): Pair<InputStream, Long>? {
+                val uri = latestVideoUri ?: queryLatestVideoUri() ?: return null
+                return try {
+                    val cr = context.contentResolver
+                    val pfd = cr.openFileDescriptor(uri, "r")
+                    val size = pfd?.statSize ?: -1L
+                    pfd?.close()
+                    val stream = cr.openInputStream(uri) ?: return null
+                    stream to size
+                } catch (_: Exception) {
+                    null
+                }
+            }
 
             override fun onSwitchCamera(): Boolean {
                 mainHandler.post { onSwitchCameraRequested() }
@@ -382,6 +416,10 @@ class WifiStreamManager(
                 fps = 0,
             )
         }
+    }
+
+    fun onAudioPermissionGranted() {
+        audioStreamer?.retryAudioCaptureIfClientsActive()
     }
 
     fun setQuality(quality: StreamQuality) {

@@ -4,6 +4,7 @@ import android.util.Log
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.net.Socket
@@ -29,6 +30,7 @@ class WifiCameraServer(
 
     interface ServerCallbacks {
         fun getLatestSnapshot(): ByteArray?
+        fun openLatestVideoStream(): Pair<InputStream, Long>? = null
         fun onSwitchCamera(): Boolean
         fun onSelectLens(lensId: String): Boolean = false
         fun onSelectMode(mode: String): Boolean = false
@@ -246,6 +248,7 @@ class WifiCameraServer(
                     }
                 }
                 "/snapshot.jpg", "/photo.jpg" -> serveSnapshot(socket)
+                "/latest-video.mp4", "/video/latest" -> serveLatestVideo(socket)
                 "/status" -> serveStatus(socket)
                 "/api/switch-camera" -> {
                     val success = callbacks.onSwitchCamera()
@@ -275,7 +278,7 @@ class WifiCameraServer(
                     val success = callbacks.onSetFlash(option)
                     sendJsonResponse(socket, """{"success":$success}""")
                 }
-                "/api/photo" -> {
+                "/api/photo", "/api/capture" -> {
                     val success = callbacks.onTriggerCapture()
                     sendJsonResponse(socket, """{"success":$success}""")
                 }
@@ -442,6 +445,37 @@ class WifiCameraServer(
         out.write(jpeg)
         out.flush()
         socket.close()
+    }
+
+    private fun serveLatestVideo(socket: Socket) {
+        val streamPair = callbacks.openLatestVideoStream()
+        if (streamPair == null) {
+            send404(socket)
+            return
+        }
+        val (stream, length) = streamPair
+        try {
+            val out = BufferedOutputStream(socket.getOutputStream(), 64 * 1024)
+            val lengthHeader = if (length > 0) "Content-Length: $length\r\n" else ""
+            val header = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: video/mp4\r\n" +
+                "Content-Disposition: attachment; filename=\"ObsWifiCams_PhoneVideo.mp4\"\r\n" +
+                lengthHeader +
+                "Access-Control-Allow-Origin: *\r\n" +
+                "Connection: close\r\n\r\n"
+            out.write(header.toByteArray(StandardCharsets.US_ASCII))
+            stream.use { input ->
+                val buf = ByteArray(64 * 1024)
+                var read: Int
+                while (input.read(buf).also { read = it } != -1) {
+                    out.write(buf, 0, read)
+                }
+            }
+            out.flush()
+        } catch (_: Exception) {
+        } finally {
+            runCatching { socket.close() }
+        }
     }
 
     private fun serveStatus(socket: Socket) {

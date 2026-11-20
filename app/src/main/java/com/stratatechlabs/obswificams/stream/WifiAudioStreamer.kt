@@ -201,6 +201,13 @@ class WifiAudioStreamer(private val context: Context) {
         return buf.array()
     }
 
+    fun retryAudioCaptureIfClientsActive() {
+        if (activeClients.isNotEmpty() && !isRecording.get() && isAudioSupported) {
+            Log.i(TAG, "Retrying audio capture after permission grant. Active clients: ${activeClients.size}")
+            startAudioCapture()
+        }
+    }
+
     fun close() {
         stopAudioCapture()
         activeClients.forEach { it.close() }

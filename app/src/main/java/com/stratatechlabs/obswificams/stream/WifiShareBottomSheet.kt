@@ -1,9 +1,11 @@
 package com.stratatechlabs.obswificams.stream
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +31,12 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
 
     var streamManager: WifiStreamManager? = null
 
+    private val audioPermLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            streamManager?.onAudioPermissionGranted()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = SheetWifiShareBinding.inflate(inflater, container, false)
         return binding.root
@@ -45,6 +53,10 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
     private fun setupViews(manager: WifiStreamManager) {
         binding.wifiShareSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
+                val audioGranted = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+                if (!audioGranted) {
+                    audioPermLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
                 val started = manager.startStreaming()
                 if (!started) {
                     binding.wifiShareSwitch.isChecked = false
@@ -286,6 +298,7 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
     private fun copyToClipboard(text: String) {
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("Stream URL", text)
+        @Suppress("UsePropertyAccessSyntax")
         clipboard.setPrimaryClip(clip)
         Toast.makeText(requireContext(), R.string.wifi_share_copied, Toast.LENGTH_SHORT).show()
     }
@@ -293,7 +306,7 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
     override fun onStop() {
         super.onStop()
         // Automatically turn off the flashlight when leaving the dashboard so LED does not stay stuck on
-        streamManager?.setTorch(false)
+        streamManager?.setTorch(enable = false)
     }
 
     override fun onDestroyView() {

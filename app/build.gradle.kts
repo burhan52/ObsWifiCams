@@ -101,6 +101,7 @@ android {
         buildConfig = true
     }
 
+    @Suppress("UnstableApiUsage")
     androidResources {
         generateLocaleConfig = false
     }

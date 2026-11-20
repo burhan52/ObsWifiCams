@@ -24,11 +24,11 @@ import android.util.Size
 import android.view.Surface
 import android.view.View
 import androidx.annotation.OptIn
-import androidx.camera.camera2.interop.Camera2CameraControl
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.interop.applyCamera2InteropAsync
+import androidx.camera.camera2.interop.cameraCharacteristics
+import androidx.camera.camera2.interop.cameraId
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -112,7 +112,7 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * Owns the CameraX session for the viewfinder.
  *
- * Responsibilities: provider/extension initialisation, choosing and binding a
+ * Responsibilities: provider/extension initialization, choosing and binding a
  * camera (with automatic fallback to other cameras when one fails — the
  * original purpose of this project), per-mode use-case composition, manual
  * Camera2 controls, still capture, recording and frame analysis.
@@ -415,13 +415,9 @@ class CameraController(
      */
     private fun bindTo(p: ProcessCameraProvider, cameraId: String?, st: CameraState, safeMode: Boolean, allowAnalysis: Boolean): String {
         val facingFront = if (cameraId == null) st.isFront else p.availableCameraInfos.first { idOf(it) == cameraId }.let(::isFront)
-        val baseSelector = if (cameraId == null) {
-            CameraSelector.Builder()
-                .requireLensFacing(if (facingFront) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
-                .build()
-        } else {
-            selectorForId(cameraId)
-        }
+        val baseSelector = cameraId?.let(::selectorForId) ?: CameraSelector.Builder()
+            .requireLensFacing(if (facingFront) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK)
+            .build()
         val baseInfo = baseSelector.filter(p.availableCameraInfos).firstOrNull()
             ?: throw IllegalStateException("No camera matches ${cameraId ?: "default facing"}")
 
@@ -438,8 +434,6 @@ class CameraController(
             mode == CaptureMode.PHOTO && st.hdrEnabled && ExtensionIds.HDR in supportedExtensions -> ExtensionIds.HDR
             else -> null
         }
-        val selector = if (extensionMode != null && ext != null) ext.getExtensionEnabledCameraSelector(baseSelector, extensionMode) else baseSelector
-
         // A persistent recording keeps running across unbind/rebind of its VideoCapture.
         p.unbindAll()
         closeDualOwner()
@@ -451,6 +445,12 @@ class CameraController(
             .setScaleType(ViewPort.FILL_CENTER)
             .build()
         val group = UseCaseGroup.Builder().setViewPort(viewPort).apply { useCases.forEach { addUseCase(it) } }.build()
+        val selector = if (extensionMode != null && ext != null) {
+            @Suppress("DEPRECATION")
+            ext.getExtensionEnabledCameraSelector(baseSelector, extensionMode)
+        } else {
+            baseSelector
+        }
         val bound = p.bindToLifecycle(lifecycleOwner, selector, group)
         boundExtensionKey = extensionKey
 
@@ -485,7 +485,7 @@ class CameraController(
                 currentCameraId = boundId,
                 isFront = facingFront,
                 hasFlashUnit = bound.cameraInfo.hasFlashUnit(),
-                hdrAvailable = ExtensionIds.HDR in supportedExtensions && mode == CaptureMode.PHOTO,
+                hdrAvailable = (ExtensionIds.HDR in supportedExtensions) && (mode == CaptureMode.PHOTO),
                 evIndex = exposure.exposureCompensationIndex,
                 evMin = if (exposure.isExposureCompensationSupported) exposure.exposureCompensationRange.lower else 0,
                 evMax = if (exposure.isExposureCompensationSupported) exposure.exposureCompensationRange.upper else 0,
@@ -512,8 +512,8 @@ class CameraController(
      * resolution, not a screenshot of the viewfinder.
      */
     private fun bindDual(p: ProcessCameraProvider, st: CameraState) {
-        val pair = dualPair ?: throw IllegalStateException("No concurrent camera pair")
-        val (mainInfo, insetInfo) = if (st.dualFrontMain) pair.front to pair.back else pair.back to pair.front
+        val (back, front) = dualPair ?: throw IllegalStateException("No concurrent camera pair")
+        val (mainInfo, insetInfo) = if (st.dualFrontMain) front to back else back to front
         p.unbindAll()
         closeDualOwner()
         val owner = SessionLifecycleOwner(lifecycleOwner).also { dualOwner = it }
@@ -636,6 +636,7 @@ class CameraController(
         val previewBuilder = Preview.Builder()
             .setResolutionSelector(ResolutionSelector.Builder().setAspectRatioStrategy(aspectStrategy).build())
         if (extensionMode == null) {
+            @Suppress("DEPRECATION")
             Camera2Interop.Extender(previewBuilder).setSessionCaptureCallback(liveExposureCallback)
         }
         val preview = previewBuilder.build().also { it.surfaceProvider = createPreviewSurfaceProvider() }
@@ -688,7 +689,7 @@ class CameraController(
                 PhotoQualityOption.QUALITY -> ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
                 PhotoQualityOption.LATENCY -> ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
                 PhotoQualityOption.ZERO_SHUTTER_LAG ->
-                    if (info.isZslSupported && extensionMode == null) ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                    if (info.isZslSupported && (extensionMode == null)) ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
                     else ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
             }
         }
@@ -1190,39 +1191,40 @@ class CameraController(
     private fun applyManual() {
         val cam = camera ?: return
         val st = _state.value
-        val control = Camera2CameraControl.from(cam.cameraControl)
         val m = st.manual
         peakingActive = st.mode == CaptureMode.PRO && m.focusDiopters != null && st.manualCapabilities.manualFocus
         val manualActive = (!st.mode.usesExtension || st.mode == CaptureMode.PRO) && !m.isAllAuto
         if (!manualActive) {
-            control.clearCaptureRequestOptions()
+            cam.cameraControl.applyCamera2InteropAsync {
+                clearAllCaptureRequestOptions()
+            }
             return
         }
         val caps = st.manualCapabilities
-        val builder = CaptureRequestOptions.Builder()
-        if ((caps.manualSensor || caps.isoRange != null) && (m.iso != null || m.exposureNs != null)) {
-            // Camera2 has no shutter/ISO priority: with AE off both must be set, so the
-            // auto side is frozen at its last metered value.
-            val live = liveExposure.get()
-            builder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_OFF)
-            // Values may come from a previous session on another camera: clamp to this one.
-            val iso = (m.iso ?: live?.iso ?: DEFAULT_ISO).let { v -> caps.isoRange?.let { v.coerceIn(it) } ?: v }
-            val exposure = (m.exposureNs ?: live?.exposureNs ?: DEFAULT_EXPOSURE_NS).let { v -> caps.exposureRangeNs?.let { v.coerceIn(it) } ?: v }
-            builder.setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, iso)
-            builder.setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure)
-        } else {
-            builder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
+        cam.cameraControl.applyCamera2InteropAsync {
+            if ((caps.manualSensor || caps.isoRange != null) && (m.iso != null || m.exposureNs != null)) {
+                // Camera2 has no shutter/ISO priority: with AE off both must be set, so the
+                // auto side is frozen at its last metered value.
+                val live = liveExposure.get()
+                setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_OFF)
+                // Values may come from a previous session on another camera: clamp to this one.
+                val iso = (m.iso ?: live?.iso ?: DEFAULT_ISO).let { v -> caps.isoRange?.let { v.coerceIn(it) } ?: v }
+                val exposure = (m.exposureNs ?: live?.exposureNs ?: DEFAULT_EXPOSURE_NS).let { v -> caps.exposureRangeNs?.let { v.coerceIn(it) } ?: v }
+                setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, iso)
+                setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, exposure)
+            } else {
+                setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_ON)
+            }
+            if (m.awbMode != ManualSettings.AWB_AUTO && (caps.awbModes.isEmpty() || m.awbMode in caps.awbModes)) {
+                setCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, m.awbMode)
+            } else {
+                setCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, CameraMetadata.CONTROL_AWB_MODE_AUTO)
+            }
+            if (caps.manualFocus && m.focusDiopters != null) {
+                setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF)
+                setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, m.focusDiopters.coerceIn(0f, caps.minFocusDiopters))
+            }
         }
-        if (m.awbMode != ManualSettings.AWB_AUTO && (caps.awbModes.isEmpty() || m.awbMode in caps.awbModes)) {
-            builder.setCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, m.awbMode)
-        } else {
-            builder.setCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, CameraMetadata.CONTROL_AWB_MODE_AUTO)
-        }
-        if (caps.manualFocus && m.focusDiopters != null) {
-            builder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF)
-            builder.setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, m.focusDiopters.coerceIn(0f, caps.minFocusDiopters))
-        }
-        control.setCaptureRequestOptions(builder.build())
     }
 
     // ---------------------------------------------------------------------
@@ -1371,7 +1373,13 @@ class CameraController(
             is VideoRecordEvent.Start -> _state.update { it.copy(recording = RecordingStatus.RECORDING, recordingNanos = 0) }
             is VideoRecordEvent.Pause -> _state.update { it.copy(recording = RecordingStatus.PAUSED, recordingNanos = nanos) }
             is VideoRecordEvent.Resume -> _state.update { it.copy(recording = RecordingStatus.RECORDING, recordingNanos = nanos) }
-            is VideoRecordEvent.Status -> _state.update { it.copy(recordingNanos = nanos) }
+            is VideoRecordEvent.Status -> {
+                val currentSec = nanos / 1_000_000_000L
+                val prevSec = _state.value.recordingNanos / 1_000_000_000L
+                if (currentSec != prevSec) {
+                    _state.update { it.copy(recordingNanos = nanos) }
+                }
+            }
             is VideoRecordEvent.Finalize -> {
                 try {
                     if (recordingWakeLock?.isHeld == true) recordingWakeLock?.release()
@@ -1433,26 +1441,25 @@ class CameraController(
         if (!_events.tryEmit(event)) Log.w(TAG, "Dropped event $event")
     }
 
-    private fun idOf(info: CameraInfo): String = Camera2CameraInfo.from(info).cameraId
+    private fun idOf(info: CameraInfo): String = info.cameraId
 
     private fun isFront(info: CameraInfo): Boolean = info.lensFacing == CameraSelector.LENS_FACING_FRONT
 
     @OptIn(ExperimentalCamera2Interop::class)
     private fun isHardwareLevelFullOrBetter(info: CameraInfo): Boolean = runCatching {
-        val c2 = Camera2CameraInfo.from(info)
-        val level = c2.getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        val level = info.cameraCharacteristics[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
         (level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL) ||
             (level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
     }.getOrDefault(defaultValue = false)
 
     private fun describeLenses(infos: List<CameraInfo>): List<LensDescriptor> = infos.mapNotNull { info ->
         runCatching {
-            val c2 = Camera2CameraInfo.from(info)
-            val focal = c2.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)?.firstOrNull()
-            val sensor = c2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+            val chars = info.cameraCharacteristics
+            val focal = chars[CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS]?.firstOrNull()
+            val sensor = chars[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]
             val eq = if (focal != null && sensor != null) LensMath.equivalentFocalLength(focal, sensor.width, sensor.height) else null
             LensDescriptor(
-                cameraId = c2.cameraId,
+                cameraId = info.cameraId,
                 isFront = isFront(info),
                 equivalentFocalMm = eq,
                 category = LensMath.category(eq),
@@ -1463,12 +1470,12 @@ class CameraController(
     }
 
     private fun manualCapabilities(info: CameraInfo): ManualCapabilities = runCatching {
-        val c2 = Camera2CameraInfo.from(info)
-        val caps = c2.getCameraCharacteristic(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0)
-        val iso = c2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
-        val exposure = c2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE)
-        val awb = c2.getCameraCharacteristic(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES) ?: IntArray(0)
-        val minFocus = c2.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE) ?: 0f
+        val chars = info.cameraCharacteristics
+        val caps = chars[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES] ?: IntArray(0)
+        val iso = chars[CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE]
+        val exposure = chars[CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE]
+        val awb = chars[CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES] ?: IntArray(0)
+        val minFocus = chars[CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE] ?: 0f
         val hasManualSensorCap = CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR in caps
         val manualSensor = hasManualSensorCap || (iso != null)
         ManualCapabilities(

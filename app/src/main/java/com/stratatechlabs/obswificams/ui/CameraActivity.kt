@@ -152,6 +152,12 @@ class CameraActivity : AppCompatActivity() {
         beginRecording()
     }
 
+    private val streamAudioPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted && ::wifiStreamManager.isInitialized) {
+            wifiStreamManager.onAudioPermissionGranted()
+        }
+    }
+
     // ---------------------------------------------------------------------
     // Lifecycle
     // ---------------------------------------------------------------------
@@ -740,34 +746,39 @@ class CameraActivity : AppCompatActivity() {
         if (!::wifiStreamManager.isInitialized || !::controller.isInitialized) return
         val streaming = wifiStreamManager.state.value.isStreaming
         val recording = controller.isRecording || (controller.state.value.recording != RecordingStatus.IDLE)
+        val ip = wifiStreamManager.state.value.ipAddress
+        val port = wifiStreamManager.state.value.port
+        val url = if (streaming && (ip != null)) "http://$ip:$port" else ""
+
+        if ((streaming == lastServiceStreaming) && (recording == lastServiceRecording) && (url == lastServiceUrl)) {
+            return
+        }
+        lastServiceStreaming = streaming
+        lastServiceRecording = recording
+        lastServiceUrl = url
+
         cameraLifecycleOwner.onBackgroundStateChanged()
         if (streaming || recording) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 setShowWhenLocked(true)
                 setTurnScreenOn(true)
             }
-            val ip = wifiStreamManager.state.value.ipAddress
-            val port = wifiStreamManager.state.value.port
-            val url = if (streaming && (ip != null)) "http://$ip:$port" else ""
-            if ((streaming != lastServiceStreaming) || (recording != lastServiceRecording) || (url != lastServiceUrl)) {
-                lastServiceStreaming = streaming
-                lastServiceRecording = recording
-                lastServiceUrl = url
-                CameraStreamingForegroundService.start(this, url, recording)
-            }
+            CameraStreamingForegroundService.start(this, url, recording)
         } else {
-            if (lastServiceStreaming || lastServiceRecording) {
-                lastServiceStreaming = false
-                lastServiceRecording = false
-                lastServiceUrl = ""
-                CameraStreamingForegroundService.stop(this)
-            }
+            CameraStreamingForegroundService.stop(this)
         }
     }
 
     private fun render(state: CameraState) {
         val previous = lastRendered
         lastRendered = state
+
+        // Fast path: during recording, duration updates only need to re-render the recording timer.
+        if ((previous != null) && (previous.copy(recordingNanos = state.recordingNanos) == state)) {
+            renderRecording(state)
+            return
+        }
+
         renderModes(state)
         renderTopBar(state)
         renderZoom(state)
@@ -958,7 +969,6 @@ class CameraActivity : AppCompatActivity() {
 
     private fun renderRecording(state: CameraState) {
         val recording = state.recording != RecordingStatus.IDLE
-        syncBackgroundService()
         binding.recordingChip.isVisible = recording
         binding.recordingTime.text = if (state.recording == RecordingStatus.PAUSED) {
             getString(R.string.recording_paused_time, TimeFormat.recording(state.recordingNanos))
@@ -1226,6 +1236,9 @@ class CameraActivity : AppCompatActivity() {
 
     private fun onMediaSaved(uri: Uri, isVideo: Boolean) {
         lastCaptureUri = uri
+        if (isVideo && ::wifiStreamManager.isInitialized) {
+            wifiStreamManager.latestVideoUri = uri
+        }
         lifecycleScope.launch {
             repository.thumbnail(uri, isVideo, THUMB_PX)?.let { setThumbnail(it) }
         }
@@ -1335,6 +1348,10 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun showWifiShareSheet() {
+        val audioGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        if (!audioGranted) {
+            streamAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
         wifiStreamManager.refreshIpAddress()
         val sheet = WifiShareBottomSheet.newInstance(wifiStreamManager)
         sheet.show(supportFragmentManager, WifiShareBottomSheet.TAG)

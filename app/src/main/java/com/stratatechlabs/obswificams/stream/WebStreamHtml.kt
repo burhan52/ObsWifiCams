@@ -460,6 +460,9 @@ object WebStreamHtml {
             </svg>Reward Tea
           </button>
 
+          <button class="audio-btn" onclick="saveSnapshotToPc()" title="Save current frame as JPEG to PC">
+            <span>📷</span> Snap to PC
+          </button>
           <button class="audio-btn" onclick="toggleMirror()" title="Flip horizontally">
             <span>⇄</span> Mirror
           </button>
@@ -491,9 +494,22 @@ object WebStreamHtml {
               <div class="chip" data-mode="pro" onclick="setMode('pro')">Pro Manual</div>
             </div>
           </div>
+          <div class="control-row" style="margin-bottom:10px;">
+            <span class="control-label">Save To:</span>
+            <div class="chip-group" id="saveDestChips">
+              <div class="chip active" data-dest="pc" onclick="setSaveDestination('pc')" title="Record in native MP4 format and save directly to this PC">💻 PC (MP4)</div>
+              <div class="chip" data-dest="phone" onclick="setSaveDestination('phone')" title="Record to Phone gallery">📱 Phone</div>
+              <div class="chip" data-dest="both" onclick="setSaveDestination('both')" title="Save MP4 to Phone gallery and auto-download to this PC">⭐ Both (PC + Phone)</div>
+            </div>
+          </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <button class="btn-action btn-capture" onclick="takeSnapshot()">📸 Take Photo</button>
-            <button class="btn-action chip-record" id="recordBtn" onclick="toggleRecording()">⏺ Record Video</button>
+            <button class="btn-action btn-capture" id="captureBtn" onclick="takeSnapshot()">📸 Take Photo</button>
+            <button class="btn-action chip-record" id="recordBtn" onclick="toggleRecording()">⏺ Record MP4 (PC)</button>
+          </div>
+          <div id="phoneVideoRow" style="margin-top:8px; display:none;">
+            <a id="downloadPhoneVideoBtn" href="/latest-video.mp4" download class="btn-action" style="display:block; text-align:center; text-decoration:none; background:#1e293b; color:var(--accent); border:1px solid var(--accent); padding:6px 10px; font-size:0.8rem; border-radius:8px;">
+              📥 Download Recorded MP4 Video
+            </a>
           </div>
         </div>
 
@@ -696,19 +712,43 @@ object WebStreamHtml {
     // Real-Time Ultra-Low Latency Web Audio Engine (<50ms sync)
     // -------------------------------------------------------------
     let audioCtx = null;
-    let audioGain = null;
+    let audioMasterGain = null;
+    let audioSpeakerGain = null;
+    let audioRecordDest = null;
     let audioReader = null;
+    let audioAbortController = null;
     let nextAudioPlayTime = 0;
-    let isRealtimeAudioActive = false;
+    let isSpeakerAudioActive = false;
+    let isAudioStreamRunning = false;
+
+    function initAudioGraph() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+        audioMasterGain = audioCtx.createGain();
+        audioMasterGain.gain.value = 1.0;
+
+        audioSpeakerGain = audioCtx.createGain();
+        const volSlider = document.getElementById('volumeSlider');
+        const vol = volSlider ? parseFloat(volSlider.value) : 1.0;
+        audioSpeakerGain.gain.value = isSpeakerAudioActive ? vol : 0.0;
+
+        audioMasterGain.connect(audioSpeakerGain);
+        audioSpeakerGain.connect(audioCtx.destination);
+
+        audioRecordDest = audioCtx.createMediaStreamDestination();
+        audioMasterGain.connect(audioRecordDest);
+      }
+    }
 
     function updateAudioBtnUI(active) {
       const btn = document.getElementById('audioToggleBtn');
       const icon = document.getElementById('audioIcon');
       const text = document.getElementById('audioBtnText');
+      if (!btn || !icon || !text) return;
       if (active) {
         btn.classList.add('active');
         icon.innerText = '🔊';
-        text.innerText = 'Mute Real-Time Audio';
+        text.innerText = 'Mute Audio';
       } else {
         btn.classList.remove('active');
         icon.innerText = '🔈';
@@ -716,70 +756,90 @@ object WebStreamHtml {
       }
     }
 
-    async function startRealtimeAudio() {
+    function shouldRunAudioStream() {
+      return isSpeakerAudioActive || isPcRecording;
+    }
+
+    async function ensureAudioStreamRunning() {
+      initAudioGraph();
+      if (audioCtx.state === 'suspended') {
+        try { await audioCtx.resume(); } catch(e) {}
+      }
+      if (shouldRunAudioStream() && !isAudioStreamRunning) {
+        fetchAudioStream();
+      }
+    }
+
+    async function fetchAudioStream() {
+      if (isAudioStreamRunning) return;
+      isAudioStreamRunning = true;
+      if (audioAbortController) {
+        try { audioAbortController.abort(); } catch(e) {}
+      }
+      audioAbortController = new AbortController();
+
       try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
-          audioGain = audioCtx.createGain();
-          audioGain.connect(audioCtx.destination);
-          setAudioVolume(document.getElementById('volumeSlider').value);
-        }
-        if (audioCtx.state === 'suspended') {
-          await audioCtx.resume();
-        }
-
-        isRealtimeAudioActive = true;
-        updateAudioBtnUI(true);
-
-        const response = await fetch('/audio.wav?t=' + Date.now());
+        const response = await fetch('/audio.wav?t=' + Date.now(), { signal: audioAbortController.signal });
         if (!response.body) {
-          // Fallback to standard audio tag if fetch streaming unsupported
-          audioPlayer.src = '/audio.wav?t=' + Date.now();
-          audioPlayer.play().catch(() => {});
-          return;
+          throw new Error('ReadableStream not supported');
         }
 
         const reader = response.body.getReader();
         audioReader = reader;
 
-        let headerSkipped = false;
+        let headerBytesLeft = 44;
         let leftoverBytes = new Uint8Array(0);
+        nextAudioPlayTime = audioCtx.currentTime;
 
-        while (isRealtimeAudioActive) {
+        while (isAudioStreamRunning && shouldRunAudioStream()) {
           const { done, value } = await reader.read();
           if (done) break;
           if (!value || value.length === 0) continue;
 
           let chunk = value;
-          if (!headerSkipped) {
-            if (chunk.length < 44) continue;
-            chunk = chunk.subarray(44); // Skip 44-byte WAV header
-            headerSkipped = true;
+          // Skip exactly 44-byte WAV header cleanly even if split across packets
+          if (headerBytesLeft > 0) {
+            if (chunk.length <= headerBytesLeft) {
+              headerBytesLeft -= chunk.length;
+              continue;
+            }
+            chunk = chunk.subarray(headerBytesLeft);
+            headerBytesLeft = 0;
           }
 
           let full;
           if (leftoverBytes.length > 0) {
             full = new Uint8Array(leftoverBytes.length + chunk.length);
-            full.set(leftoverBytes);
+            full.set(leftoverBytes, 0);
             full.set(chunk, leftoverBytes.length);
             leftoverBytes = new Uint8Array(0);
           } else {
             full = chunk;
           }
 
-          const usableLen = full.length - (full.length % 2);
-          if (full.length % 2 !== 0) {
-            leftoverBytes = full.subarray(usableLen);
+          const sampleCount = Math.floor(full.length / 2);
+          if (sampleCount === 0) {
+            leftoverBytes = full;
+            continue;
           }
 
-          const sampleCount = usableLen / 2;
-          if (sampleCount === 0) continue;
+          const usableBytes = sampleCount * 2;
+          if (full.length > usableBytes) {
+            leftoverBytes = full.slice(usableBytes);
+          }
 
-          // Convert 16-bit PCM little endian to Float32
-          const int16View = new Int16Array(full.buffer, full.byteOffset, sampleCount);
+          // Direct byte extraction: avoids RangeError on unaligned Uint8Array chunks
           const floatBuffer = new Float32Array(sampleCount);
           for (let i = 0; i < sampleCount; i++) {
-            floatBuffer[i] = int16View[i] / 32768.0;
+            const low = full[i * 2];
+            const high = full[i * 2 + 1];
+            let val = (high << 8) | low;
+            if (val >= 32768) val -= 65536; // 16-bit signed
+            floatBuffer[i] = val / 32768.0;
+          }
+
+          if (audioCtx.state === 'suspended') {
+            try { await audioCtx.resume(); } catch(e) {}
           }
 
           const audioBuf = audioCtx.createBuffer(1, sampleCount, 44100);
@@ -787,53 +847,60 @@ object WebStreamHtml {
 
           const source = audioCtx.createBufferSource();
           source.buffer = audioBuf;
-          source.connect(audioGain);
+          source.connect(audioMasterGain);
 
           const currentTime = audioCtx.currentTime;
-          // Maintain low-latency window: snap to real-time if lag exceeds 70ms
-          if (nextAudioPlayTime < currentTime || nextAudioPlayTime > currentTime + 0.07) {
-            nextAudioPlayTime = currentTime + 0.015; // 15ms safety jitter buffer
+          // Maintain low-latency sync: snap to real-time if jitter/delay exceeds 80ms
+          if (nextAudioPlayTime < currentTime || nextAudioPlayTime > currentTime + 0.08) {
+            nextAudioPlayTime = currentTime + 0.015; // 15ms safety cushion
           }
 
           source.start(nextAudioPlayTime);
           nextAudioPlayTime += audioBuf.duration;
         }
       } catch (err) {
-        console.warn('Real-time audio stream error:', err);
+        if (err && err.name !== 'AbortError') console.warn('Real-time audio stream error:', err);
       } finally {
-        stopRealtimeAudio();
+        isAudioStreamRunning = false;
+        if (audioReader) {
+          try { audioReader.cancel(); } catch(e) {}
+          audioReader = null;
+        }
+        if (shouldRunAudioStream()) {
+          setTimeout(fetchAudioStream, 800);
+        }
       }
-    }
-
-    function stopRealtimeAudio() {
-      isRealtimeAudioActive = false;
-      if (audioReader) {
-        try { audioReader.cancel(); } catch(e) {}
-        audioReader = null;
-      }
-      try { audioPlayer.pause(); audioPlayer.src = ''; } catch(e) {}
-      updateAudioBtnUI(false);
     }
 
     function toggleAudioPlayback() {
-      if (isRealtimeAudioActive) {
-        stopRealtimeAudio();
-      } else {
-        startRealtimeAudio();
+      initAudioGraph();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
       }
+      isSpeakerAudioActive = !isSpeakerAudioActive;
+      const volSlider = document.getElementById('volumeSlider');
+      const vol = volSlider ? parseFloat(volSlider.value) : 1.0;
+      if (audioSpeakerGain) {
+        audioSpeakerGain.gain.value = isSpeakerAudioActive ? vol : 0.0;
+      }
+      updateAudioBtnUI(isSpeakerAudioActive);
+      ensureAudioStreamRunning();
     }
 
     function setAudioVolume(val) {
       const v = parseFloat(val);
-      if (audioGain) audioGain.gain.value = v;
-      if (audioPlayer) audioPlayer.volume = v;
+      if (audioSpeakerGain && isSpeakerAudioActive) {
+        audioSpeakerGain.gain.value = v;
+      }
     }
 
     function reconnectStream() {
       streamImg.src = '/video.mjpeg?t=' + Date.now();
-      if (isRealtimeAudioActive) {
-        stopRealtimeAudio();
-        setTimeout(startRealtimeAudio, 250);
+      if (shouldRunAudioStream()) {
+        if (audioAbortController) {
+          try { audioAbortController.abort(); } catch(e) {}
+        }
+        setTimeout(ensureAudioStreamRunning, 250);
       }
     }
 
@@ -869,21 +936,465 @@ object WebStreamHtml {
       return fetch(url, { method: 'POST' }).then(r => r.json()).catch(() => ({}));
     }
 
-    function takeSnapshot() {
-      // Trigger capture on device camera
-      postApi('/api/capture').then(() => {
-        // Also download live frame locally for user convenience
-        const a = document.createElement('a');
-        a.href = '/snapshot.jpg?t=' + Date.now();
-        a.download = 'ObsWifiCams_Photo_' + Date.now() + '.jpg';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    // Save destination: 'pc', 'phone', or 'both'
+    let saveDestination = localStorage.getItem('obs_save_dest') || 'pc';
+
+    function setSaveDestination(dest) {
+      saveDestination = dest;
+      try { localStorage.setItem('obs_save_dest', dest); } catch(e) {}
+      document.querySelectorAll('#saveDestChips .chip').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-dest') === dest);
       });
+      updateShutterButtonLabels();
+    }
+
+    function updateShutterButtonLabels() {
+      const capBtn = document.getElementById('captureBtn');
+      const recBtn = document.getElementById('recordBtn');
+      if (isPcRecording || isPhoneRecording || isStartingRecording) return;
+      if (capBtn) {
+        if (saveDestination === 'pc') capBtn.innerText = '📸 Take Photo (PC)';
+        else if (saveDestination === 'phone') capBtn.innerText = '📸 Take Photo (Phone)';
+        else capBtn.innerText = '📸 Take Photo (Both)';
+      }
+      if (recBtn) {
+        if (saveDestination === 'pc') recBtn.innerText = '⏺ Record MP4 (PC)';
+        else if (saveDestination === 'phone') recBtn.innerText = '⏺ Record Video (Phone)';
+        else recBtn.innerText = '⏺ Record MP4 (Both)';
+      }
+    }
+
+    async function takeSnapshot() {
+      const dest = saveDestination;
+      const btn = document.getElementById('captureBtn');
+      const prev = btn ? btn.innerText : '';
+      if (btn) btn.innerText = '⏳ Capturing...';
+
+      if (dest === 'phone' || dest === 'both') {
+        postApi('/api/photo');
+        if (dest === 'phone') {
+          showToast('📸 Photo captured on Phone');
+        }
+      }
+
+      if (dest === 'pc' || dest === 'both') {
+        await saveSnapshotToPc();
+      }
+
+      if (btn) btn.innerText = prev;
+    }
+
+    async function saveSnapshotToPc() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const filename = 'ObsWifiCams_Photo_' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + '.jpg';
+
+      let saved = false;
+      try {
+        const res = await fetch('/snapshot.jpg?t=' + Date.now());
+        if (res.ok) {
+          const blob = await res.blob();
+          if (blob && blob.size > 1000) {
+            downloadBlob(blob, filename);
+            showToast('📸 Photo saved to PC: ' + filename);
+            saved = true;
+          }
+        }
+      } catch(e) {
+        console.warn('Snapshot fetch error, falling back to canvas:', e);
+      }
+
+      if (!saved) {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = streamImg.naturalWidth || 1280;
+          canvas.height = streamImg.naturalHeight || 720;
+          const ctx = canvas.getContext('2d');
+          if (activeFilter && activeFilter !== 'none') {
+            ctx.filter = getComputedStyle(streamImg).filter;
+          }
+          ctx.drawImage(streamImg, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(blob => {
+            if (blob) {
+              downloadBlob(blob, filename);
+              showToast('📸 Photo saved to PC: ' + filename);
+            }
+          }, 'image/jpeg', 0.95);
+        } catch(e) {
+          console.error('Canvas snapshot error:', e);
+          showToast('❌ Failed to capture photo to PC');
+        }
+      }
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 15000);
+    }
+
+    // In-browser PC Video Recording Engine (Canvas + MediaRecorder)
+    let isPcRecording = false;
+    let isPhoneRecording = false;
+    let phoneRecordingSeconds = 0;
+    let pcMediaRecorder = null;
+    let pcRecordedChunks = [];
+    let pcRecordStartTime = 0;
+    let pcDrawInterval = null;
+    let pcTimerInterval = null;
+    let pcRecCanvas = null;
+    let pcRecCtx = null;
+    let pcMjpegAbort = null;
+    let pcCurrentFrame = null;
+
+    async function startMjpegFramePump() {
+      if (pcMjpegAbort) {
+        try { pcMjpegAbort.abort(); } catch(e) {}
+      }
+      pcMjpegAbort = new AbortController();
+      try {
+        const res = await fetch('/video.mjpeg', { signal: pcMjpegAbort.signal });
+        if (!res.body) return;
+        const reader = res.body.getReader();
+        let buffer = new Uint8Array(0);
+
+        while (isPcRecording) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const next = new Uint8Array(buffer.length + value.length);
+          next.set(buffer, 0);
+          next.set(value, buffer.length);
+          buffer = next;
+
+          // Search for SOI: 0xFF, 0xD8
+          let soi = -1;
+          for (let i = 0; i < buffer.length - 1; i++) {
+            if (buffer[i] === 0xFF && buffer[i + 1] === 0xD8) {
+              soi = i;
+              break;
+            }
+          }
+          if (soi === -1) {
+            if (buffer.length > 1) buffer = buffer.slice(buffer.length - 1);
+            continue;
+          }
+
+          // Search for EOI: 0xFF, 0xD9 after SOI
+          let eoi = -1;
+          for (let i = soi + 2; i < buffer.length - 1; i++) {
+            if (buffer[i] === 0xFF && buffer[i + 1] === 0xD9) {
+              eoi = i + 2;
+              break;
+            }
+          }
+
+          if (eoi !== -1) {
+            const frameBytes = buffer.slice(soi, eoi);
+            buffer = buffer.slice(eoi);
+            const blob = new Blob([frameBytes], { type: 'image/jpeg' });
+            if (window.createImageBitmap) {
+              createImageBitmap(blob).then(bmp => {
+                if (!isPcRecording) {
+                  bmp.close();
+                  return;
+                }
+                const old = pcCurrentFrame;
+                pcCurrentFrame = bmp;
+                if (old) old.close();
+              }).catch(() => {});
+            }
+          }
+        }
+      } catch (err) {
+        if (err && err.name !== 'AbortError') console.warn('Frame pump error:', err);
+      }
+    }
+
+    function startPcRecording() {
+      if (isPcRecording) return;
+      if (!window.MediaRecorder) {
+        showToast('⚠️ MediaRecorder API unsupported in this browser');
+        return;
+      }
+
+      // Ensure audio graph is initialized and stream is running for audio recording
+      initAudioGraph();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        try { audioCtx.resume(); } catch(e) {}
+      }
+      ensureAudioStreamRunning();
+
+      const img = document.getElementById('streamImg');
+      const w = (img && img.naturalWidth) || 1280;
+      const h = (img && img.naturalHeight) || 720;
+
+      if (!pcRecCanvas) {
+        pcRecCanvas = document.createElement('canvas');
+      }
+      pcRecCanvas.width = w;
+      pcRecCanvas.height = h;
+      pcRecCtx = pcRecCanvas.getContext('2d');
+
+      // Draw initial frame
+      try {
+        if (img) pcRecCtx.drawImage(img, 0, 0, w, h);
+      } catch(e) {}
+
+      let stream;
+      try {
+        stream = pcRecCanvas.captureStream(30);
+      } catch(e) {
+        console.error('captureStream failed:', e);
+        showToast('⚠️ Could not capture video stream on PC');
+        return;
+      }
+
+      // Route audio track directly from audioRecordDest into recording stream
+      try {
+        if (audioRecordDest) {
+          const tracks = audioRecordDest.stream.getAudioTracks();
+          if (tracks.length > 0) {
+            stream.addTrack(tracks[0]);
+          }
+        }
+      } catch(e) {
+        console.warn('Could not attach audio track:', e);
+      }
+
+      const hasAudio = stream.getAudioTracks().length > 0;
+      let mimeType = '';
+      // Prioritize MP4 so Windows Media Player / default Movies & TV app open it out-of-the-box
+      const candidates = hasAudio ? [
+        'video/mp4;codecs=avc1,mp4a.40.2',
+        'video/mp4;codecs=avc1,aac',
+        'video/mp4;codecs=avc1,opus',
+        'video/mp4',
+        'video/webm;codecs=h264,opus',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm'
+      ] : [
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+        'video/webm;codecs=h264',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm'
+      ];
+      for (const t of candidates) {
+        if (MediaRecorder.isTypeSupported(t)) {
+          mimeType = t;
+          break;
+        }
+      }
+
+      pcRecordedChunks = [];
+      try {
+        if (mimeType) {
+          pcMediaRecorder = new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 4000000 });
+        } else {
+          pcMediaRecorder = new MediaRecorder(stream);
+        }
+      } catch(e) {
+        try {
+          pcMediaRecorder = new MediaRecorder(stream);
+          mimeType = pcMediaRecorder.mimeType || 'video/mp4';
+        } catch(e2) {
+          console.error('Failed to create MediaRecorder:', e2);
+          showToast('❌ MediaRecorder initialization failed');
+          return;
+        }
+      }
+
+      pcMediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          pcRecordedChunks.push(e.data);
+        }
+      };
+
+      pcMediaRecorder.onstop = () => {
+        finalizePcRecording(pcMediaRecorder ? (pcMediaRecorder.mimeType || mimeType) : mimeType);
+      };
+
+      try {
+        pcMediaRecorder.start(1000);
+      } catch(e) {
+        console.error('MediaRecorder.start() failed:', e);
+        showToast('❌ MediaRecorder start failed');
+        return;
+      }
+
+      isPcRecording = true;
+      pcRecordStartTime = Date.now();
+
+      // Start reading live MJPEG frames to bypass Chromium multipart canvas caching bug
+      startMjpegFramePump();
+
+      // Continuous 30 FPS draw loop without resizing canvas
+      if (pcDrawInterval) clearInterval(pcDrawInterval);
+      pcDrawInterval = setInterval(renderPcRecordFrame, 1000 / 30);
+
+      if (pcTimerInterval) clearInterval(pcTimerInterval);
+      pcTimerInterval = setInterval(updateRecordingUI, 1000);
+
+      updateRecordingUI();
+      showToast('⏺ PC Video Recording started' + (hasAudio ? ' (with audio)' : ''));
+    }
+
+    function renderPcRecordFrame() {
+      if (!isPcRecording || !pcRecCanvas || !pcRecCtx) return;
+      const img = document.getElementById('streamImg');
+      try {
+        if (activeFilter && activeFilter !== 'none') {
+          pcRecCtx.filter = img ? getComputedStyle(img).filter : 'none';
+        } else {
+          pcRecCtx.filter = 'none';
+        }
+      } catch(e) {
+        pcRecCtx.filter = 'none';
+      }
+      try {
+        if (pcCurrentFrame) {
+          pcRecCtx.drawImage(pcCurrentFrame, 0, 0, pcRecCanvas.width, pcRecCanvas.height);
+        } else if (img) {
+          pcRecCtx.drawImage(img, 0, 0, pcRecCanvas.width, pcRecCanvas.height);
+        }
+      } catch(e) {}
+    }
+
+    function stopPcRecording() {
+      if (!isPcRecording) return;
+      isPcRecording = false;
+      if (pcMjpegAbort) {
+        try { pcMjpegAbort.abort(); } catch(e) {}
+        pcMjpegAbort = null;
+      }
+      if (pcCurrentFrame) {
+        try { pcCurrentFrame.close(); } catch(e) {}
+        pcCurrentFrame = null;
+      }
+      if (pcDrawInterval) {
+        clearInterval(pcDrawInterval);
+        pcDrawInterval = null;
+      }
+      if (pcTimerInterval) {
+        clearInterval(pcTimerInterval);
+        pcTimerInterval = null;
+      }
+      if (pcMediaRecorder && pcMediaRecorder.state === 'recording') {
+        try { pcMediaRecorder.requestData(); } catch(e) {}
+        try { pcMediaRecorder.stop(); } catch(e) {}
+      }
+      // If speaker audio is not active, stop fetching audio to save bandwidth
+      if (!shouldRunAudioStream() && audioAbortController) {
+        try { audioAbortController.abort(); } catch(e) {}
+        isAudioStreamRunning = false;
+      }
+    }
+
+    function finalizePcRecording(mimeType) {
+      if (pcRecordedChunks.length === 0) return;
+      const isMp4 = !mimeType || mimeType.includes('mp4');
+      const ext = isMp4 ? '.mp4' : '.webm';
+      const blob = new Blob(pcRecordedChunks, { type: mimeType || (isMp4 ? 'video/mp4' : 'video/webm') });
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const filename = 'ObsWifiCams_Video_' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + ext;
+
+      downloadBlob(blob, filename);
+      showToast('💾 Video saved to PC (' + (isMp4 ? 'MP4' : 'WebM') + '): ' + filename);
+      pcRecordedChunks = [];
+    }
+
+    let isStartingRecording = false;
+    let startRecordReqTime = 0;
+    let lastRecordDest = 'pc';
+
+    function downloadUrl(url, filename) {
+      const a = document.createElement('a');
+      a.href = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+      a.download = filename || 'ObsWifiCams_Video.mp4';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch(e) {}
+      }, 1200);
     }
 
     function toggleRecording() {
-      postApi('/api/record').then(() => updateStatus());
+      const isAnyRec = isPhoneRecording || isStartingRecording || isPcRecording;
+      const dest = saveDestination;
+
+      if (isAnyRec) {
+        isStartingRecording = false;
+        if (isPcRecording) stopPcRecording();
+        if (isPhoneRecording) {
+          postApi('/api/record').then(() => {
+            setTimeout(updateStatus, 300);
+            setTimeout(updateStatus, 800);
+          });
+        }
+        updateRecordingUI();
+      } else {
+        initAudioGraph();
+        if (audioCtx && audioCtx.state === 'suspended') {
+          try { audioCtx.resume(); } catch(e) {}
+        }
+        lastRecordDest = dest;
+        isStartingRecording = true;
+        startRecordReqTime = Date.now();
+        postApi('/api/record').then(() => {
+          setTimeout(updateStatus, 400);
+          setTimeout(updateStatus, 1200);
+        });
+        updateRecordingUI();
+      }
+    }
+
+    function updateRecordingUI() {
+      const recBtn = document.getElementById('recordBtn');
+      const recTimer = document.getElementById('recTimer');
+      const isAnyRec = isPhoneRecording || isStartingRecording || isPcRecording;
+
+      if (isAnyRec) {
+        if (recBtn) {
+          recBtn.innerText = '⏹ Stop Recording';
+          recBtn.classList.add('active');
+        }
+        if (recTimer) {
+          recTimer.style.display = 'inline';
+          let sec = phoneRecordingSeconds;
+          let label = 'REC (MP4)';
+          if (saveDestination === 'both') {
+            label = 'REC (PC + Phone)';
+          } else if (saveDestination === 'pc') {
+            label = 'REC (PC MP4)';
+          } else {
+            label = 'REC (Phone)';
+          }
+          if (isStartingRecording && !isPhoneRecording) {
+            label = 'REC (Starting...)';
+            sec = 0;
+          }
+          const m = Math.floor(sec / 60);
+          const s = sec % 60;
+          recTimer.innerText = label + ' ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        }
+      } else {
+        if (recBtn) {
+          recBtn.classList.remove('active');
+          updateShutterButtonLabels();
+        }
+        if (recTimer) {
+          recTimer.style.display = 'none';
+        }
+      }
     }
 
     function setMode(mode) {
@@ -1170,19 +1681,36 @@ object WebStreamHtml {
           }
 
           // Recording state
-          const recBtn = document.getElementById('recordBtn');
-          const recTimer = document.getElementById('recTimer');
-          if (d.isRecording) {
-            recBtn.innerText = '⏹ Stop Recording';
-            recBtn.classList.add('active');
-            recTimer.style.display = 'inline';
-            const m = Math.floor(d.recordingSeconds / 60);
-            const s = d.recordingSeconds % 60;
-            recTimer.innerText = 'REC ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+          const wasPhoneRecording = isPhoneRecording;
+          if (isStartingRecording) {
+            if (d.isRecording) {
+              isStartingRecording = false;
+              isPhoneRecording = true;
+            } else if (Date.now() - startRecordReqTime > 7000) {
+              isStartingRecording = false;
+              isPhoneRecording = false;
+            }
           } else {
-            recBtn.innerText = '⏺ Record Video';
-            recBtn.classList.remove('active');
-            recTimer.style.display = 'none';
+            isPhoneRecording = !!d.isRecording;
+          }
+          phoneRecordingSeconds = d.recordingSeconds || 0;
+          updateRecordingUI();
+
+          if (wasPhoneRecording && !isPhoneRecording) {
+            const pRow = document.getElementById('phoneVideoRow');
+            if (pRow) pRow.style.display = 'block';
+
+            if (saveDestination === 'pc' || saveDestination === 'both') {
+              showToast('💾 Video finalized! Downloading MP4 to PC...');
+              setTimeout(() => {
+                const now = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const filename = 'ObsWifiCams_Video_' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + '.mp4';
+                downloadUrl('/latest-video.mp4', filename);
+              }, 500);
+            } else {
+              showToast('📱 Video saved to Phone gallery! <a href="/latest-video.mp4" download style="color:var(--accent);text-decoration:underline;margin-left:4px;">Download MP4 to PC</a>');
+            }
           }
 
           // Lens list population
@@ -1213,6 +1741,10 @@ object WebStreamHtml {
         });
     }
 
+    function showToast(msg) {
+      showTeaToast(msg);
+    }
+
     function showTeaToast(msg) {
       let t = document.getElementById('teaToast');
       if (!t) {
@@ -1225,6 +1757,17 @@ object WebStreamHtml {
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3500);
     }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (isPcRecording) {
+        stopPcRecording();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    // Initialize save destination and UI labels
+    setSaveDestination(saveDestination);
 
     setInterval(updateStatus, 800);
     updateStatus();
