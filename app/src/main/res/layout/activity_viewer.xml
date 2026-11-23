@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:contentDescription="@string/viewer_crop"
-            android:tooltipText="@string/viewer_crop"
+            app:tooltipText="@string/viewer_crop"
             app:icon="@drawable/ic_crop" />
 
         <com.google.android.material.button.MaterialButton

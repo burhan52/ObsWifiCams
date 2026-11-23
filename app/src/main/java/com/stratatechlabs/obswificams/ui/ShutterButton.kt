@@ -97,7 +97,7 @@ class ShutterButton @JvmOverloads constructor(
         }.start()
     }
 
-    /** Called when the finger lifts (or the gesture is cancelled); ends a long-press burst. */
+    /** Called when the finger lifts (or the gesture is canceled); ends a long-press burst. */
     var onRelease: (() -> Unit)? = null
 
     /**
@@ -126,8 +126,10 @@ class ShutterButton @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
-    @Suppress("RedundantOverride")
-    override fun performClick(): Boolean = super.performClick()
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
 
     private fun animatePress(target: Float) {
         ValueAnimator.ofFloat(pressScale, target).apply {

@@ -20,7 +20,7 @@ import kotlin.math.sin
 
 /**
  * Drives [LevelView] with synthetic accelerometer readings and checks the pixels
- * it draws, so the "turns the accent colour when level" behaviour is verified
+ * it draws, so the "turns the accent color when level" behavior is verified
  * without someone tilting a phone. The view is not attached, so the real sensor
  * never feeds it.
  */
@@ -35,7 +35,7 @@ class LevelViewTest {
         val view = levelView(orientation = 0)
         feed(view, rollDeg = 0f)
         assertTrue(view.isLevel)
-        assertColour(accent, centrePixel(view))
+        assertColor(accent, centerPixel(view))
     }
 
     @Test
@@ -43,10 +43,10 @@ class LevelViewTest {
         val view = levelView(orientation = 0)
         feed(view, rollDeg = 5f)
         assertFalse(view.isLevel)
-        // Off-level line: translucent white (alpha 200), not the accent colour.
-        val pixel = centrePixel(view)
-        assertEquals(200, Color.alpha(pixel), 2)
-        assertColour(Color.rgb(255, 255, 255), pixel or (0xFF shl 24))
+        // Off-level line: translucent white (alpha 200), not the accent color.
+        val pixel = centerPixel(view)
+        assertEquals("expected alpha 200±2, got ${Color.alpha(pixel)}", 200f, Color.alpha(pixel).toFloat(), 2f)
+        assertColor(Color.rgb(255, 255, 255), pixel or (0xFF shl 24))
     }
 
     @Test
@@ -64,7 +64,7 @@ class LevelViewTest {
         val view = levelView(orientation = 270)
         feed(view, rollDeg = 90f)
         assertTrue(view.isLevel)
-        assertColour(accent, centrePixel(view))
+        assertColor(accent, centerPixel(view))
     }
 
     @Test
@@ -72,7 +72,7 @@ class LevelViewTest {
         val view = levelView(orientation = 0)
         repeat(SETTLE_READINGS) { view.onAcceleration(0f, 0f, G) }
         assertFalse(view.isLevel)
-        assertEquals(Color.TRANSPARENT, centrePixel(view))
+        assertEquals(Color.TRANSPARENT, centerPixel(view))
     }
 
     private fun levelView(orientation: Int): LevelView {
@@ -96,24 +96,18 @@ class LevelViewTest {
         }
     }
 
-    private fun centrePixel(view: LevelView): Int {
+    private fun centerPixel(view: LevelView): Int {
         val bitmap = Bitmap.createBitmap(SIZE_PX, SIZE_PX, Bitmap.Config.ARGB_8888)
         InstrumentationRegistry.getInstrumentation().runOnMainSync { view.draw(Canvas(bitmap)) }
         return bitmap.getPixel(SIZE_PX / 2, SIZE_PX / 2).also { bitmap.recycle() }
     }
 
-    private fun assertColour(expected: Int, actual: Int) {
+    private fun assertColor(expected: Int, actual: Int, tolerance: Int = 3) {
         val msg = "expected #%08X, got #%08X".format(expected, actual)
-        assertEquals(msg, Color.red(expected), Color.red(actual), 3)
-        assertEquals(msg, Color.green(expected), Color.green(actual), 3)
-        assertEquals(msg, Color.blue(expected), Color.blue(actual), 3)
+        assertEquals(msg, Color.red(expected).toFloat(), Color.red(actual).toFloat(), tolerance.toFloat())
+        assertEquals(msg, Color.green(expected).toFloat(), Color.green(actual).toFloat(), tolerance.toFloat())
+        assertEquals(msg, Color.blue(expected).toFloat(), Color.blue(actual).toFloat(), tolerance.toFloat())
     }
-
-    private fun assertEquals(expected: Int, actual: Int, tolerance: Int) =
-        assertEquals("expected $expected±$tolerance, got $actual", expected.toFloat(), actual.toFloat(), tolerance.toFloat())
-
-    private fun assertEquals(message: String, expected: Int, actual: Int, tolerance: Int) =
-        assertEquals(message, expected.toFloat(), actual.toFloat(), tolerance.toFloat())
 
     private companion object {
         const val G = 9.81f

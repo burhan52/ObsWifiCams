@@ -76,14 +76,4 @@
         <item name="textStartPadding">2dp</item>
         <item name="textEndPadding">2dp</item>
     </style>
-
-    <!-- Backward-compatibility aliases -->
-    <style name="Theme.CustomCamera" parent="Theme.ObsWifiCams" />
-    <style name="Theme.CustomCamera.Viewfinder" parent="Theme.ObsWifiCams.Viewfinder" />
-    <style name="Base.Theme.CustomCamera.Viewfinder" parent="Base.Theme.ObsWifiCams.Viewfinder" />
-    <style name="Theme.CustomCamera.Starting" parent="Theme.ObsWifiCams.Starting" />
-    <style name="Widget.CustomCamera.IconButton" parent="Widget.ObsWifiCams.IconButton" />
-    <style name="Widget.CustomCamera.TopBarText" parent="Widget.ObsWifiCams.TopBarText" />
-    <style name="TextAppearance.CustomCamera.Mode" parent="TextAppearance.ObsWifiCams.Mode" />
-    <style name="Widget.CustomCamera.ProChip" parent="Widget.ObsWifiCams.ProChip" />
 </resources>

@@ -135,6 +135,7 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
 
         binding.filterChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             val filter = when {
+                R.id.chipFilterImax in checkedIds -> StreamFilter.IMAX
                 R.id.chipFilterBluray in checkedIds -> StreamFilter.BLURAY
                 R.id.chipFilterTealOrange in checkedIds -> StreamFilter.TEAL_ORANGE
                 R.id.chipFilterVivid in checkedIds -> StreamFilter.VIVID
@@ -205,7 +206,7 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
             binding.audioUrlText.text = "$base/audio.wav"
 
             val clientsStr = if (st.clientCount > 0) {
-                getString(R.string.wifi_share_clients, st.clientCount)
+                resources.getQuantityString(R.plurals.wifi_share_clients, st.clientCount, st.clientCount)
             } else {
                 getString(R.string.wifi_share_waiting)
             }
@@ -252,6 +253,7 @@ class WifiShareBottomSheet : BottomSheetDialogFragment() {
         }
 
         val targetFilterChipId = when (st.filter) {
+            StreamFilter.IMAX -> R.id.chipFilterImax
             StreamFilter.BLURAY -> R.id.chipFilterBluray
             StreamFilter.TEAL_ORANGE -> R.id.chipFilterTealOrange
             StreamFilter.VIVID -> R.id.chipFilterVivid

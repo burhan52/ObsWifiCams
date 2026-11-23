@@ -91,7 +91,7 @@ class CropOverlayView @JvmOverloads constructor(
 
     val hasImage: Boolean get() = bitmap != null
 
-    /** Applies a crop aspect preset, refitting the crop as large as possible around its centre. */
+    /** Applies a crop aspect preset, refitting the crop as large as possible around its center. */
     fun setAspect(aspect: CropAspect) {
         val frame = displayFrame() ?: run {
             edit = edit.copy(aspect = aspect)
@@ -282,8 +282,10 @@ class CropOverlayView @JvmOverloads constructor(
         return activeHandle != null
     }
 
-    @Suppress("RedundantOverride")
-    override fun performClick(): Boolean = super.performClick()
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
 
     /**
      * Keeps the left/right handles usable under gesture navigation: without this a drag

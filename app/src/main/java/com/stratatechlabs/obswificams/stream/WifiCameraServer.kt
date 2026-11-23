@@ -31,12 +31,12 @@ class WifiCameraServer(
     interface ServerCallbacks {
         fun getLatestSnapshot(): ByteArray?
         fun openLatestVideoStream(): Pair<InputStream, Long>? = null
-        fun onSwitchCamera(): Boolean
+        fun onSwitchCamera(): Boolean = true
         fun onSelectLens(lensId: String): Boolean = false
         fun onSelectMode(mode: String): Boolean = false
         fun onToggleTorch(): Boolean
         fun onSetTorchStrength(level: Int): Boolean = false
-        fun onTriggerCapture(): Boolean
+        fun onTriggerCapture(): Boolean = true
         fun onToggleRecording(): Boolean = false
         fun onSetZoom(ratio: Float): Boolean = false
         fun onSetExposure(index: Int): Boolean = false
@@ -45,6 +45,7 @@ class WifiCameraServer(
         fun onSetAspectRatio(aspect: String): Boolean = false
         fun onSetFlash(mode: String): Boolean = false
         fun onSetProIso(iso: Int?): Boolean = false
+        fun onSetProExposureNs(ns: Long?): Boolean = false
         fun onSetProAwb(awb: Int?): Boolean = false
         fun onSetProFocusDiopters(diopters: Float?): Boolean = false
         fun onSetAutoAdjust(enabled: Boolean): Boolean = false
@@ -141,7 +142,7 @@ class WifiCameraServer(
             "WifiCameraServer-Accept",
         ).also { it.start() }
 
-        Log.i(TAG, "Wifi camera server started on port $port")
+        Log.i(TAG, "Wi-Fi camera server started on port $port")
     }
 
     fun stop() {
@@ -159,7 +160,7 @@ class WifiCameraServer(
 
         connectionExecutor.shutdownNow()
         frameBroadcastExecutor.shutdownNow()
-        Log.i(TAG, "Wifi camera server stopped")
+        Log.i(TAG, "Wi-Fi camera server stopped")
     }
 
     fun broadcastFrame(jpegBytes: ByteArray) {
@@ -313,12 +314,17 @@ class WifiCameraServer(
                 }
                 "/api/pro-manual" -> {
                     val rawIso = queryParams["iso"]
+                    val rawShutter = queryParams["shutterNs"] ?: queryParams["exposureNs"]
                     val rawAwb = queryParams["awb"]
                     val rawFocus = queryParams["focusDiopters"]
 
                     if (rawIso != null) {
                         val iso = if (rawIso.equals("auto", ignoreCase = true) || (rawIso.toIntOrNull() == -1)) null else rawIso.toIntOrNull()
                         callbacks.onSetProIso(iso)
+                    }
+                    if (rawShutter != null) {
+                        val shutter = if (rawShutter.equals("auto", ignoreCase = true) || (rawShutter.toLongOrNull() == -1L)) null else rawShutter.toLongOrNull()
+                        callbacks.onSetProExposureNs(shutter)
                     }
                     if (rawAwb != null) {
                         val awb = if (rawAwb.equals("auto", ignoreCase = true) || (rawAwb.toIntOrNull() == -1) || (rawAwb.toIntOrNull() == 1)) null else rawAwb.toIntOrNull()
@@ -421,7 +427,7 @@ class WifiCameraServer(
         socket.trafficClass = 0x10 // IPTOS_LOWDELAY
         socket.sendBufferSize = 128 * 1024
         val out = BufferedOutputStream(socket.getOutputStream(), 64 * 1024)
-        if ((jpeg == null) || jpeg.isEmpty()) {
+        if (jpeg == null || jpeg.isEmpty()) {
             val err = "No snapshot available yet"
             val errBytes = err.toByteArray(StandardCharsets.UTF_8)
             val header = "HTTP/1.1 503 Service Unavailable\r\n" +

@@ -42,7 +42,7 @@ sealed class ScanContent {
         }
 
         /**
-         * WIFI:T:WPA;S:MyNet;P:secret;H:false;;
+         * Wi-Fi network payload format: WIFI:T:WPA;S:MyNet;P:secret;H:false;;
          * Fields may appear in any order; `\` escapes `;`, `,`, `:` and `\`.
          */
         internal fun parseWifi(text: String): Wifi? {
@@ -98,7 +98,7 @@ sealed class ScanContent {
             val out = StringBuilder()
             var i = 0
             while (i < s.length) {
-                if (s[i] == '\\' && i + 1 < s.length) { out.append(s[i + 1]); i += 2 } else { out.append(s[i]); i++ }
+                if ((s[i] == '\\') && (i + 1 < s.length)) { out.append(s[i + 1]); i += 2 } else { out.append(s[i]); i++ }
             }
             return out.toString()
         }
@@ -107,7 +107,7 @@ sealed class ScanContent {
             val body = text.substring(7)
             val address = body.substringBefore('?')
             val query = body.substringAfter('?', "")
-            val params = query.split('&').filter { '=' in it }.associate {
+            val params = query.splitToSequence('&').filter { '=' in it }.associate {
                 it.substringBefore('=').lowercase() to decodePercent(it.substringAfter('='))
             }
             return Email(text, decodePercent(address), params["subject"], params["body"])
@@ -135,7 +135,7 @@ sealed class ScanContent {
             if (coords.size < 2) return null
             val lat = coords[0].trim().toDoubleOrNull() ?: return null
             val lon = coords[1].trim().toDoubleOrNull() ?: return null
-            if (lat !in -90.0..90.0 || lon !in -180.0..180.0) return null
+            if ((lat !in -90.0..90.0) || (lon !in -180.0..180.0)) return null
             return Geo(text, lat, lon)
         }
 

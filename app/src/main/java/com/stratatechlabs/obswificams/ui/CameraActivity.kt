@@ -52,6 +52,7 @@ import com.stratatechlabs.obswificams.camera.PersistentCameraLifecycleOwner
 import com.stratatechlabs.obswificams.camera.RecordingStatus
 import com.stratatechlabs.obswificams.core.CaptureMode
 import com.stratatechlabs.obswificams.core.FlashOption
+import com.stratatechlabs.obswificams.stream.ActiveStreamingSession
 import com.stratatechlabs.obswificams.stream.CameraStreamingForegroundService
 import com.stratatechlabs.obswificams.core.OrientationMath
 import com.stratatechlabs.obswificams.core.PipLayout
@@ -147,6 +148,9 @@ class CameraActivity : AppCompatActivity() {
     private val requiredPermissions: Array<String>
         get() = buildList {
             add(Manifest.permission.CAMERA)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                add(Manifest.permission.POST_NOTIFICATIONS)
+            }
             // Writing to MediaStore outside our own entries needs this before scoped storage.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }.toTypedArray()
@@ -159,6 +163,8 @@ class CameraActivity : AppCompatActivity() {
             showPermissionPanel()
         }
     }
+
+    private val notificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ -> }
 
     private val audioPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (!granted) Toast.makeText(this, R.string.permission_audio_denied, Toast.LENGTH_SHORT).show()
@@ -189,36 +195,44 @@ class CameraActivity : AppCompatActivity() {
         settings = AppSettings(this)
         feedback = CaptureFeedback()
         location = LocationTracker(this)
-        cameraLifecycleOwner = PersistentCameraLifecycleOwner(this) {
-            (::wifiStreamManager.isInitialized && (wifiStreamManager.state.value.isStreaming)) ||
-            (::controller.isInitialized && (controller.isRecording || (controller.state.value.recording != RecordingStatus.IDLE)))
-        }
-        controller = CameraController(this, cameraLifecycleOwner, binding.previewView, settings)
-        wifiStreamManager = WifiStreamManager(
-            context = this,
-            controller = controller,
-            settings = settings,
-            onSwitchCameraRequested = { flipCamera() },
-            onTriggerCaptureRequested = { onShutter() },
-            onTriggerRecordingRequested = {
-                @Suppress("DestructuringDeclaration")
-                val st = controller.state.value
-                if (st.recording != RecordingStatus.IDLE) {
-                    controller.stopRecording()
-                } else if (st.mode.isVideo) {
-                    if (st.ready) {
-                        startRecordingFlow()
+        val activeSession = ActiveStreamingSession.active
+        if (activeSession != null && (activeSession.wifiStreamManager.state.value.isStreaming || activeSession.controller.isRecording)) {
+            cameraLifecycleOwner = activeSession.cameraLifecycleOwner
+            controller = activeSession.controller
+            wifiStreamManager = activeSession.wifiStreamManager
+            cameraLifecycleOwner.attachParent(this)
+            controller.attachPreviewView(binding.previewView)
+        } else {
+            cameraLifecycleOwner = PersistentCameraLifecycleOwner(this) {
+                (::wifiStreamManager.isInitialized && (wifiStreamManager.state.value.isStreaming)) ||
+                (::controller.isInitialized && (controller.isRecording || (controller.state.value.recording != RecordingStatus.IDLE)))
+            }
+            controller = CameraController(this, cameraLifecycleOwner, binding.previewView, settings)
+            wifiStreamManager = WifiStreamManager(
+                context = this,
+                controller = controller,
+                settings = settings,
+                onSwitchCameraRequested = { flipCamera() },
+                onTriggerCaptureRequested = { onShutter() },
+                onTriggerRecordingRequested = {
+                    val st = controller.state.value
+                    if (st.recording != RecordingStatus.IDLE) {
+                        controller.stopRecording()
+                    } else if (st.mode.isVideo) {
+                        if (st.ready) {
+                            startRecordingFlow()
+                        }
+                    } else {
+                        pendingRecordAfterModeSwitch = true
+                        selectMode(CaptureMode.VIDEO)
                     }
-                } else {
-                    pendingRecordAfterModeSwitch = true
-                    selectMode(CaptureMode.VIDEO)
-                }
-            },
-            onSelectModeRequested = ::selectMode,
-            onRewardTeaRequested = {
-                Toast.makeText(this@CameraActivity, getString(R.string.reward_tea_remote_received), Toast.LENGTH_LONG).show()
-            },
-        )
+                },
+                onSelectModeRequested = ::selectMode,
+                onRewardTeaRequested = {
+                    Toast.makeText(this@CameraActivity, getString(R.string.reward_tea_remote_received), Toast.LENGTH_LONG).show()
+                },
+            )
+        }
         // Best guess before the first layout; the root layout listener corrects it.
         controller.onWindowChanged(resources.configuration.let { it.screenWidthDp > it.screenHeightDp }, displayRotation())
         proPanel = ProPanelController(this, binding.proPanel, controller)
@@ -334,6 +348,11 @@ class CameraActivity : AppCompatActivity() {
             cameraLifecycleOwner.release()
             wifiStreamManager.close()
             controller.release()
+            if (ActiveStreamingSession.active?.wifiStreamManager === wifiStreamManager) {
+                ActiveStreamingSession.active = null
+            }
+        } else {
+            cameraLifecycleOwner.detachParent()
         }
         feedback.release()
         super.onDestroy()
@@ -746,7 +765,6 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("DestructuringDeclaration")
     private fun collectCamera() {
         lifecycleScope.launch {
             controller.state.collect {
@@ -782,6 +800,14 @@ class CameraActivity : AppCompatActivity() {
         val ip = wifiStreamManager.state.value.ipAddress
         val port = wifiStreamManager.state.value.port
         val url = if (streaming && (ip != null)) "http://$ip:$port" else ""
+
+        if (streaming || recording) {
+            ActiveStreamingSession.active = ActiveStreamingSession(cameraLifecycleOwner, controller, wifiStreamManager)
+        } else {
+            if (ActiveStreamingSession.active?.wifiStreamManager === wifiStreamManager) {
+                ActiveStreamingSession.active = null
+            }
+        }
 
         if ((streaming == lastServiceStreaming) && (recording == lastServiceRecording) && (url == lastServiceUrl)) {
             return
@@ -1381,6 +1407,12 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun showWifiShareSheet() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val notifGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!notifGranted) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
         val audioGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
         if (!audioGranted) {
             streamAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)

@@ -99,7 +99,10 @@
     <string name="wifi_share_copied">Stream URL copied to clipboard</string>
     <string name="wifi_share_no_wifi">Wi-Fi not connected. Connect to a Wi-Fi network or enable Mobile Hotspot to stream.</string>
     <string name="wifi_share_waiting">Waiting for viewers…</string>
-    <string name="wifi_share_clients">%1$d viewer(s) connected</string>
+    <plurals name="wifi_share_clients">
+        <item quantity="one">%1$d viewer connected</item>
+        <item quantity="other">%1$d viewers connected</item>
+    </plurals>
     <string name="wifi_share_quality_title">Stream Resolution</string>
     <string name="wifi_share_quality_auto">Auto Resolution</string>
     <string name="wifi_share_quality_4k">4K UHD (2160p)</string>
@@ -119,13 +122,11 @@
     <string name="wifi_share_auto_adjust">Auto-adjust for smooth streaming</string>
     <string name="wifi_share_auto_adjust_desc">Dynamically adapts compression to prevent stutter and lag</string>
     <string name="wifi_share_live_chip">Wi-Fi LIVE · %1$s</string>
-    <string name="wifi_share_port_label">Port: %1$d</string>
     <string name="wifi_share_rotation_title">Stream Orientation / Rotation</string>
     <string name="wifi_share_rot_0">0° Normal</string>
     <string name="wifi_share_rot_90">90° CW</string>
     <string name="wifi_share_rot_180">180°</string>
     <string name="wifi_share_rot_270">270° CCW</string>
-    <string name="wifi_share_flash_toggle">Flashlight / Torch</string>
     <string name="wifi_share_flash_on">Flash On</string>
     <string name="wifi_share_flash_off">Flash Off</string>
     <string name="wifi_share_flash_unavailable">Flash not available on this device</string>
@@ -268,6 +269,7 @@
     <!-- Wi-Fi Stream Filters -->
     <string name="wifi_share_filters_title">Filters &amp; Color Grading</string>
     <string name="wifi_filter_none">Normal</string>
+    <string name="wifi_filter_imax">🎬 IMAX 70mm</string>
     <string name="wifi_filter_bluray">💿 Blu-Ray</string>
     <string name="wifi_filter_tealorange">🎬 Teal &amp; Orange</string>
     <string name="wifi_filter_vivid">🌈 Vivid</string>

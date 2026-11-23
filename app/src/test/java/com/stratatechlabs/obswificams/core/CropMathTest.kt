@@ -128,11 +128,11 @@ class CropMathTest {
     }
 
     @Test
-    fun `fit returns the largest centred rect of the ratio`() {
+    fun `fit returns the largest centered rect of the ratio`() {
         assertRect(CropRect(50f, 0f, 350f, 300f), CropMath.fit(bounds, 1f))
         assertRect(CropRect(0f, 37.5f, 400f, 262.5f), CropMath.fit(bounds, 16f / 9f))
         assertRect(bounds, CropMath.fit(bounds, null))
-        // Off-centre request is shifted back inside.
+        // Off-center request is shifted back inside.
         assertRect(CropRect(100f, 0f, 400f, 300f), CropMath.fit(bounds, 1f, centerX = 390f))
     }
 
@@ -223,9 +223,8 @@ class CropMathTest {
                     else -> y to (w - 1 - x)
                 }
                 val u = if (flipped) dw - 1 - u0 else u0
-                val v = v0
                 val px = CropMath.toSourcePixels(
-                    CropRect(u.toFloat() / dw, v.toFloat() / dh, (u + 1f) / dw, (v + 1f) / dh), t, w, h,
+                    CropRect(u.toFloat() / dw, v0.toFloat() / dh, (u + 1f) / dw, (v0 + 1f) / dh), t, w, h,
                 )
                 assertEquals("rot=$rotation flip=$flipped ($x,$y)", PixelRect(x, y, x + 1, y + 1), px)
             }

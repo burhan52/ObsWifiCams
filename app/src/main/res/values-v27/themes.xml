@@ -5,5 +5,4 @@
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowLightNavigationBar">false</item>
     </style>
-    <style name="Theme.CustomCamera.Viewfinder" parent="Theme.ObsWifiCams.Viewfinder" />
 </resources>

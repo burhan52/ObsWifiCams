@@ -3,9 +3,9 @@ package com.stratatechlabs.obswificams.core
 /**
  * Placement of the picture-in-picture inset in DUAL mode.
  *
- * CameraX CompositionSettings use normalised device coordinates: the output
- * spans -1..1 on both axes with the origin in the centre and +y pointing up,
- * and `offset` moves the centre of a stream scaled by `scale`. Views use 0..1
+ * CameraX CompositionSettings use normalized device coordinates: the output
+ * spans -1..1 on both axes with the origin in the center and +y pointing up,
+ * and `offset` moves the center of a stream scaled by `scale`. Views use 0..1
  * with +y pointing down; [PipLayout.insetRect] converts so taps can be hit-tested.
  * The composited frame is display-oriented: on a Pixel 8 Pro forced to
  * landscape (ROTATION_90) a top-left request appeared top-left on screen.
@@ -27,7 +27,7 @@ enum class PipCorner(val key: String) {
 /** Composition parameters for one stream, in CameraX NDC units. */
 data class Composition(val offsetX: Float, val offsetY: Float, val scale: Float)
 
-/** Axis-aligned rectangle in normalised view coordinates (0..1, +y down). */
+/** Axis-aligned rectangle in normalized view coordinates (0..1, +y down). */
 data class NormRect(val left: Float, val top: Float, val right: Float, val bottom: Float) {
     fun contains(x: Float, y: Float): Boolean = (x >= left) && (x <= right) && (y >= top) && (y <= bottom)
 }
@@ -44,7 +44,7 @@ object PipLayout {
 
     fun inset(corner: PipCorner, scale: Float = DEFAULT_SCALE, margin: Float = DEFAULT_MARGIN): Composition {
         require((scale > 0f) && (scale < 1f)) { "scale must be in (0, 1)" }
-        // A stream scaled by s spans s units either side of its centre in NDC.
+        // A stream scaled by s spans s units either side of its center in NDC.
         val reach = 1f - scale - margin
         val x = if ((corner == PipCorner.BOTTOM_RIGHT) || (corner == PipCorner.TOP_RIGHT)) reach else -reach
         val y = if ((corner == PipCorner.TOP_LEFT) || (corner == PipCorner.TOP_RIGHT)) reach else -reach

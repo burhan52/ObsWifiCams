@@ -33,7 +33,7 @@ import java.util.Date
 /**
  * Drives the photo editor end to end against the real MediaStore: a generated
  * landscape JPEG is cropped 1:1 and saved; the copy must be a new, square row
- * while the original stays untouched. Both rows are deleted afterwards.
+ * while the original stays untouched. Both rows are deleted afterward.
  */
 @RunWith(AndroidJUnit4::class)
 class PhotoEditorActivityTest {

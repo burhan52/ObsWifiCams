@@ -41,6 +41,16 @@ class CameraStreamingForegroundService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action
         if (action == ACTION_STOP) {
+            val active = ActiveStreamingSession.active
+            if (active != null) {
+                active.wifiStreamManager.stopStreaming()
+                if (!active.controller.isRecording && (active.controller.state.value.recording == com.stratatechlabs.obswificams.camera.RecordingStatus.IDLE)) {
+                    active.cameraLifecycleOwner.release()
+                    active.controller.release()
+                    active.wifiStreamManager.close()
+                    ActiveStreamingSession.active = null
+                }
+            }
             stopForegroundService()
             return START_NOT_STICKY
         }
@@ -144,9 +154,10 @@ class CameraStreamingForegroundService : Service() {
             .setSmallIcon(R.drawable.ic_camera)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
-            .addAction(0, "Stop Streaming", stopPendingIntent)
+            .addAction(R.drawable.ic_close, "Stop Streaming", stopPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
 
         val hasCamera = ContextCompat.checkSelfPermission(
@@ -186,6 +197,8 @@ class CameraStreamingForegroundService : Service() {
     private fun stopForegroundService() {
         releaseLocks()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        val nm = getSystemService(NotificationManager::class.java)
+        nm?.cancel(NOTIFICATION_ID)
         sendBroadcast(Intent(ACTION_STOP_STREAMING_REQUEST).setPackage(packageName))
         stopSelf()
     }

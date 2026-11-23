@@ -13,7 +13,7 @@ data class PixelBox(val left: Int, val top: Int, val width: Int, val height: Int
  * Portrait windows (phones, tablets held upright) show the preview full-width
  * under the top bar, as before. Landscape windows (tablets and foldables on
  * Android 16+, which ignore the portrait lock on large screens, and landscape
- * multi-window) reserve a shutter rail on the end side and centre the preview
+ * multi-window) reserve a shutter rail on the end side and center the preview
  * in the remaining area.
  */
 object ViewfinderGeometry {

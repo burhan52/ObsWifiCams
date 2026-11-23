@@ -31,7 +31,7 @@ class ZoomMathTest {
     fun `presets never exceed five and are ascending`() {
         val presets = ZoomMath.presets(0.5f, 30f)
         assertTrue(presets.size <= 5)
-        assertEquals(presets.sorted(), presets)
+        assertEquals(presets, presets.sorted())
     }
 
     @Test

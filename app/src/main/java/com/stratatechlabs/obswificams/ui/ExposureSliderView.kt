@@ -83,8 +83,10 @@ class ExposureSliderView @JvmOverloads constructor(context: Context, attrs: Attr
         return true
     }
 
-    @Suppress("RedundantOverride")
-    override fun performClick(): Boolean = super.performClick()
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
 
     private fun update(newValue: Int) {
         if (newValue == value) return

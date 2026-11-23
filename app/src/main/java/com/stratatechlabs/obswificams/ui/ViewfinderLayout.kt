@@ -20,7 +20,7 @@ import com.stratatechlabs.obswificams.databinding.ActivityCameraBinding
  * activity re-applies them after every [apply]. ConstraintSet.applyTo would
  * also restore each child's clone-time visibility (hiding the recording chip
  * mid-recording, showing the shutter in Scan mode), so visibility is excluded;
- * it also resets rotation, so the activity re-rotates icons afterwards.
+ * it also resets rotation, so the activity re-rotates icons afterward.
  */
 internal class ViewfinderLayout(private val binding: ActivityCameraBinding) {
 

@@ -25,7 +25,7 @@ class LensMathTest {
     }
 
     @Test
-    fun `categories`() {
+    fun categories() {
         assertEquals(LensCategory.ULTRA_WIDE, LensMath.category(13))
         assertEquals(LensCategory.WIDE, LensMath.category(24))
         assertEquals(LensCategory.STANDARD, LensMath.category(50))

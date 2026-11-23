@@ -98,7 +98,7 @@ class ZoomableImageView @JvmOverloads constructor(
         applyMatrix()
     }
 
-    /** Fit-centre the drawable. */
+    /** Fit-center the drawable. */
     private fun computeBaseMatrix() {
         val d = drawable ?: return
         if ((width == 0) || (height == 0) || (d.intrinsicWidth <= 0) || (d.intrinsicHeight <= 0)) return
@@ -166,8 +166,10 @@ class ZoomableImageView @JvmOverloads constructor(
         return true
     }
 
-    @Suppress("RedundantOverride")
-    override fun performClick(): Boolean = super.performClick()
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
 
     override fun onDetachedFromWindow() {
         animator?.cancel()

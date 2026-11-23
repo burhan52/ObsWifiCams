@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Photo editor styles. Kept apart from themes.xml so the editor can evolve independently. -->
 <resources>
-    <!-- Aspect preset chip: same colours as the viewfinder's pro chips, full 48dp touch target. -->
+    <!-- Aspect preset chip: same colors as the viewfinder's pro chips, full 48dp touch target. -->
     <style name="Widget.ObsWifiCams.EditorChip" parent="Widget.Material3.Chip.Filter">
         <item name="chipBackgroundColor">@color/pro_chip_bg</item>
         <item name="android:textColor">@color/pro_chip_text</item>
@@ -11,7 +11,7 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <!-- Labelled tool button (Rotate / Flip / Reset): icon above text, 48dp minimum. -->
+    <!-- Labeled tool button (Rotate / Flip / Reset): icon above text, 48dp minimum. -->
     <style name="Widget.ObsWifiCams.EditorAction" parent="Widget.Material3.Button.TextButton.Icon">
         <item name="android:textColor">@color/white</item>
         <item name="iconTint">@color/white</item>
@@ -21,7 +21,4 @@
         <item name="android:minWidth">@dimen/icon_button</item>
         <item name="android:textSize">12sp</item>
     </style>
-
-    <style name="Widget.CustomCamera.EditorChip" parent="Widget.ObsWifiCams.EditorChip" />
-    <style name="Widget.CustomCamera.EditorAction" parent="Widget.ObsWifiCams.EditorAction" />
 </resources>

@@ -16,7 +16,7 @@ object ExposureMath {
 
     private const val NANOS_PER_SECOND = 1_000_000_000L
 
-    /** Standard full/third-stop shutter denominators photographers recognise. */
+    /** Standard full/third-stop shutter denominators photographers recognize. */
     private val SHUTTER_DENOMINATORS = longArrayOf(
         8000, 6400, 5000, 4000, 3200, 2500, 2000, 1600, 1250, 1000, 800, 640, 500, 400, 320,
         250, 200, 160, 125, 100, 80, 60, 50, 40, 30, 25, 20, 15, 13, 10, 8, 6, 5, 4, 3,

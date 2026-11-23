@@ -47,8 +47,8 @@ class ExposureMathTest {
         assertEquals(min, stops.first())
         assertEquals(max, stops.last())
         assertTrue(stops.all { it in min..max })
-        assertEquals(stops.sorted(), stops)
-        assertEquals(stops.distinct(), stops)
+        assertEquals(stops, stops.sorted())
+        assertEquals(stops, stops.distinct())
         assertTrue(1_000_000_000L / 125 in stops)
     }
 
@@ -59,7 +59,7 @@ class ExposureMathTest {
         assertEquals(3200, stops.last())
         assertTrue(100 in stops && 800 in stops)
         assertTrue(25 !in stops && 6400 !in stops)
-        assertEquals(stops.sorted(), stops)
+        assertEquals(stops, stops.sorted())
     }
 
     @Test

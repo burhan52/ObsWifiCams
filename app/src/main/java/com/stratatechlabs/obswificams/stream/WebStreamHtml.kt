@@ -3,6 +3,7 @@ package com.stratatechlabs.obswificams.stream
 /**
  * Serves responsive, modern dark-mode HTML5 web interfaces for browser viewing, OBS Studio,
  * and comprehensive remote camera studio controls with real-time audio and cinematic filters.
+ * Styled with a sophisticated Light Slate theme (#cbd5e1 / #94a3b8 / #334155 / #1e293b).
  */
 object WebStreamHtml {
 
@@ -21,128 +22,152 @@ object WebStreamHtml {
   <title>ObsWifiCams — Live Stream Studio</title>
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #131b2e;
-      --card-border: #1e293b;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --live: #ef4444;
-      --success: #22c55e;
-      --warning: #f59e0b;
+      --accent: #cbd5e1;
+      --slate-light: #cbd5e1;
+      --slate-mid: #94a3b8;
+      --slate-dark: #475569;
+      --live: #cbd5e1;
+      --btn-grad: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+      --btn-hover: linear-gradient(180deg, #475569 0%, #334155 100%);
+      --btn-active: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       line-height: 1.4;
       padding: 12px;
     }
+
     .container {
-      max-width: 1400px;
+      max-width: 1420px;
       margin: 0 auto;
     }
+
+    /* Light Slate Studio Header */
     header {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--card-border);
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
+
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
     }
+
     .brand h1 {
       font-size: 1.3rem;
       font-weight: 700;
       letter-spacing: -0.5px;
+      color: #f8fafc;
     }
+
+    /* Light Slate Live Badge */
     .badge-live {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--live);
-      border: 1px solid var(--live);
-      border-radius: 999px;
-      padding: 2px 10px;
-      font-size: 0.75rem;
+      background: #334155;
+      color: #cbd5e1;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
+
     .dot {
-      width: 8px;
-      height: 8px;
-      background: var(--live);
+      width: 7px;
+      height: 7px;
+      background: #cbd5e1;
       border-radius: 50%;
-      animation: pulse 1.5s infinite;
+      box-shadow: 0 0 6px #cbd5e1;
+      animation: pulse 1.4s infinite;
     }
+
     @keyframes pulse {
       0% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(1.2); }
       100% { opacity: 1; transform: scale(1); }
     }
+
     .header-stats {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
+
     .stat-pill {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      background: #0f172a;
+      border: 1px solid #334155;
       border-radius: 6px;
-      padding: 3px 8px;
+      padding: 3px 10px;
       font-size: 0.75rem;
       color: var(--text-muted);
     }
+
     .stat-pill strong {
-      color: var(--accent);
+      color: #cbd5e1;
     }
+
     .tea-btn {
-      background: rgba(245, 158, 11, 0.15) !important;
-      border: 1px solid rgba(245, 158, 11, 0.4) !important;
-      color: #fbbf24 !important;
+      background: #334155 !important;
+      border: 1px solid #475569 !important;
+      color: #cbd5e1 !important;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
+
     .tea-btn:hover {
-      background: #f59e0b !important;
-      color: #090d16 !important;
+      background: #cbd5e1 !important;
+      color: #0f172a !important;
       transform: translateY(-1px);
     }
-    .tea-btn strong {
-      color: inherit !important;
-    }
+
     .tea-toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
       background: #1e293b;
       color: #f8fafc;
-      border: 1px solid #f59e0b;
+      border: 1px solid #cbd5e1;
       border-radius: 8px;
       padding: 12px 20px;
       font-size: 0.9rem;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       z-index: 9999;
       opacity: 0;
       transform: translateY(10px);
       transition: all 0.3s ease;
       pointer-events: none;
     }
+
     .tea-toast.show {
       opacity: 1;
       transform: translateY(0);
@@ -153,21 +178,23 @@ object WebStreamHtml {
       grid-template-columns: 1fr;
       gap: 16px;
     }
+
     @media (min-width: 1024px) {
       .studio-layout {
-        grid-template-columns: 1.7fr 1.1fr;
+        grid-template-columns: 1.65fr 1.05fr;
       }
     }
 
-    /* YouTube-Style Video Player Frame */
+    /* Light Slate Player Frame */
     .video-panel {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
+
     .yt-player-frame {
-      background: #0f0f0f;
-      border: 1px solid #272727;
+      background: #020617;
+      border: 1px solid #334155;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
@@ -175,50 +202,57 @@ object WebStreamHtml {
       flex-direction: column;
       position: relative;
     }
+
     .yt-player-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 8px 14px;
-      background: #181818;
-      border-bottom: 1px solid #272727;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
       font-size: 0.8rem;
     }
+
     .yt-live-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      color: #ff0000;
+      color: #cbd5e1;
       font-weight: 700;
       text-transform: uppercase;
       font-size: 0.75rem;
       letter-spacing: 0.5px;
     }
+
     .yt-live-dot {
       width: 8px;
       height: 8px;
-      background-color: #ff0000;
+      background-color: #cbd5e1;
       border-radius: 50%;
+      box-shadow: 0 0 6px #cbd5e1;
       animation: yt-pulse 1.4s infinite;
     }
+
     @keyframes yt-pulse {
       0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.25); }
+      50% { opacity: 0.4; transform: scale(1.2); }
       100% { opacity: 1; transform: scale(1); }
     }
+
     .yt-aspect-selector {
       display: flex;
       align-items: center;
       gap: 4px;
-      background: #0f0f0f;
-      border: 1px solid #272727;
+      background: #0f172a;
+      border: 1px solid #334155;
       border-radius: 6px;
       padding: 2px;
     }
+
     .yt-aspect-btn {
       background: transparent;
       border: none;
-      color: #aaa;
+      color: #94a3b8;
       padding: 3px 8px;
       font-size: 0.72rem;
       font-weight: 600;
@@ -226,14 +260,15 @@ object WebStreamHtml {
       cursor: pointer;
       transition: all 0.15s ease;
     }
+
     .yt-aspect-btn.active, .yt-aspect-btn:hover {
-      background: #ff0000;
-      color: #fff;
+      background: #cbd5e1;
+      color: #0f172a;
     }
 
     .video-viewport {
       position: relative;
-      background: #000;
+      background: #020617;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -241,51 +276,54 @@ object WebStreamHtml {
       transition: aspect-ratio 0.3s ease, max-height 0.3s ease;
       min-height: 240px;
     }
-    .video-viewport.aspect-16-9 {
-      aspect-ratio: 16 / 9;
-      max-height: none;
-    }
-    .video-viewport.aspect-9-16 {
-      aspect-ratio: 9 / 16;
-      max-height: 70vh;
-      margin: 0 auto;
-    }
-    .video-viewport.aspect-auto {
-      aspect-ratio: auto;
-      max-height: 75vh;
-    }
+
+    .video-viewport.aspect-16-9 { aspect-ratio: 16 / 9; max-height: none; }
+    .video-viewport.aspect-9-16 { aspect-ratio: 9 / 16; max-height: 70vh; margin: 0 auto; }
+    .video-viewport.aspect-auto { aspect-ratio: auto; max-height: 75vh; }
+
     .video-viewport img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       transition: transform 0.2s ease, filter 0.2s ease;
     }
-    .video-viewport.mirrored img {
-      transform: scaleX(-1);
+
+    .video-viewport.mirrored img { transform: scaleX(-1); }
+
+    /* Light Slate Live Line */
+    .yt-live-bar {
+      height: 3px;
+      background: #cbd5e1;
+      width: 100%;
+      box-shadow: 0 0 6px rgba(203, 213, 225, 0.8);
+      position: relative;
+      z-index: 10;
     }
 
-    /* YouTube Player Controls Bar */
+    /* Player Controls Bar */
     .yt-controls-bar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      background: #121212;
-      border-top: 1px solid #272727;
+      background: #1e293b;
+      border-top: 1px solid #334155;
       padding: 8px 12px;
     }
+
     .yt-controls-left, .yt-controls-right {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
-    .yt-btn {
-      background: #212121;
-      border: 1px solid #333;
-      color: #f1f1f1;
-      padding: 6px 10px;
+
+    /* Light Slate Buttons */
+    .yt-btn, .btn-action, .chip, .tab-btn {
+      background: #334155;
+      border: 1px solid #475569;
+      color: #f8fafc;
       border-radius: 6px;
       font-size: 0.78rem;
       font-weight: 500;
@@ -293,247 +331,249 @@ object WebStreamHtml {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
-    .yt-btn:hover {
-      background: #383838;
-      border-color: #ff0000;
-      color: #fff;
+
+    .yt-btn {
+      padding: 6px 10px;
     }
-    .yt-btn.active {
-      background: #ff0000;
-      color: #fff;
-      border-color: #ff0000;
+
+    .yt-btn:hover, .btn-action:hover, .chip:hover, .tab-btn:hover {
+      background: #475569;
+      border-color: #cbd5e1;
+      color: #ffffff;
     }
+
+    .yt-btn.active, .chip.active, .tab-btn.active {
+      background: #cbd5e1;
+      color: #0f172a;
+      border-color: #cbd5e1;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(203, 213, 225, 0.3);
+    }
+
+    /* Volume & Range Sliders */
     .yt-volume-wrap {
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    .yt-volume-slider {
-      width: 70px;
-      accent-color: #ff0000;
+
+    .yt-volume-slider, input[type=range] {
+      accent-color: #cbd5e1;
       cursor: pointer;
     }
 
-    /* Live Filters - Stream is hardware-graded by camera server; no double-filtering */
-    .filter-none,
-    .filter-bluray,
-    .filter-tealorange,
-    .filter-vivid,
-    .filter-vintage,
-    .filter-noir,
-    .filter-cyberpunk,
-    .filter-invert { filter: none !important; }
+    input[type=range] {
+      height: 5px;
+      background: #0f172a;
+      border-radius: 3px;
+    }
 
-    /* Audio Bar */
-    .audio-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 8px 12px;
-    }
-    .audio-btn {
-      background: #1e293b;
-      border: 1px solid var(--card-border);
-      color: var(--text);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .audio-btn:hover { background: #334155; }
-    .audio-btn.active {
-      background: var(--success);
-      color: #090d16;
-      font-weight: 700;
-      border-color: var(--success);
-    }
+    /* Live Audio VU Meter (Slate Gradient) */
     .vu-meter-container {
       display: flex;
       align-items: center;
       gap: 6px;
       flex: 1;
-      min-width: 120px;
+      min-width: 100px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 3px 6px;
     }
+
     .vu-meter-label {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
+      font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
     }
+
     .vu-meter-bar {
       flex: 1;
-      height: 8px;
-      background: #090d16;
-      border-radius: 4px;
+      height: 6px;
+      background: #020617;
+      border-radius: 3px;
       overflow: hidden;
-      border: 1px solid var(--card-border);
       position: relative;
     }
+
     .vu-meter-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(to right, #22c55e, #eab308 75%, #ef4444 95%);
+      background: linear-gradient(to right, #475569, #94a3b8, #cbd5e1);
       transition: width 0.08s linear;
     }
 
-    /* Controls Panel */
+    /* Controls Chassis Panel */
     .controls-panel {
-      background: var(--card-bg);
+      background: #1e293b;
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      max-height: 88vh;
-      overflow-y: auto;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
-    .panel-section {
-      border: 1px solid var(--card-border);
+
+    /* Studio Tab Bar */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .tab-content {
+      display: none;
+      border: 1px solid #334155;
       border-radius: 8px;
       padding: 12px;
-      background: rgba(15, 23, 42, 0.4);
+      background: #182232;
     }
-    .panel-section h3 {
+
+    .tab-content.active { display: block; }
+
+    .tab-content h3 {
       font-size: 0.85rem;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--accent);
-      margin-bottom: 10px;
+      color: #cbd5e1;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
+
     .control-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
+
     .control-row:last-child { margin-bottom: 0; }
+
     .control-label {
       font-size: 0.8rem;
+      font-weight: 600;
       color: var(--text-muted);
-      min-width: 70px;
+      min-width: 65px;
     }
+
     .chip-group {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
       flex: 1;
     }
+
     .chip {
-      background: #1e293b;
-      color: var(--text);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
       padding: 5px 10px;
       font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .chip:hover { background: #334155; }
-    .chip.active {
-      background: var(--accent);
-      color: #090d16;
-      border-color: var(--accent);
-      font-weight: 600;
-    }
-    .chip-record {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: var(--live);
-      color: var(--live);
-    }
-    .chip-record.active {
-      background: var(--live);
-      color: #fff;
-      font-weight: 700;
-      animation: pulse 1.5s infinite;
     }
 
-    input[type=range] {
-      flex: 1;
-      accent-color: var(--accent);
-      cursor: pointer;
+    .chip-record {
+      background: #334155;
+      border-color: #64748b;
+      color: #f8fafc;
     }
+
+    .chip-record.active {
+      background: #cbd5e1;
+      color: #0f172a;
+      font-weight: 700;
+      animation: pulse 1.4s infinite;
+    }
+
     .slider-val {
       font-size: 0.8rem;
       font-family: monospace;
-      color: var(--accent);
+      font-weight: 700;
+      color: #cbd5e1;
       min-width: 45px;
       text-align: right;
     }
 
     .btn-action {
-      background: #1e293b;
-      color: var(--text);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
       padding: 8px 12px;
       font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s;
     }
-    .btn-action:hover { background: #334155; border-color: var(--accent); }
-    .btn-capture {
-      background: var(--accent);
-      color: #090d16;
-      font-weight: 700;
-      border-color: var(--accent);
-    }
-    .btn-capture:hover { background: var(--accent-hover); }
 
-    /* Stream URL Copy boxes */
+    .btn-capture {
+      background: #cbd5e1;
+      color: #0f172a;
+      font-weight: 700;
+      border-color: #cbd5e1;
+    }
+
+    .btn-capture:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    /* Stream URL Copy Boxes */
     .url-box {
       display: flex;
       flex-direction: column;
       gap: 4px;
       margin-top: 8px;
     }
+
     .url-box label {
       font-size: 0.72rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      font-weight: 600;
+      font-weight: 700;
     }
+
     .url-input-wrap {
       display: flex;
       gap: 4px;
     }
+
     .url-input-wrap input {
       flex: 1;
-      background: #090d16;
-      border: 1px solid var(--card-border);
+      background: #0f172a;
+      border: 1px solid #334155;
       color: var(--text);
-      padding: 5px 8px;
+      padding: 6px 8px;
       border-radius: 6px;
       font-family: monospace;
       font-size: 0.75rem;
     }
+
     .url-input-wrap button {
-      padding: 5px 10px;
-      background: #1e293b;
-      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      background: #334155;
+      border: 1px solid #475569;
       border-radius: 6px;
       color: var(--text);
       font-size: 0.75rem;
+      font-weight: 700;
       cursor: pointer;
     }
-    .url-input-wrap button:hover { background: #334155; }
+
+    .url-input-wrap button:hover {
+      background: #475569;
+      border-color: #cbd5e1;
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -560,28 +600,28 @@ object WebStreamHtml {
     </header>
 
     <div class="studio-layout">
-      <!-- Left Column: YouTube-Style Video Player & Toolbar -->
+      <!-- Left Column: Video Player & Controls Bar -->
       <div class="video-panel">
         <div class="yt-player-frame">
-          <!-- YouTube Top Player Header -->
           <div class="yt-player-header">
             <div class="yt-live-badge">
               <span class="yt-live-dot"></span>
               <span>LIVE CAMERA STREAM</span>
             </div>
             <div class="yt-aspect-selector">
-              <button class="yt-aspect-btn active" data-aspect="auto" onclick="setAspectMode('auto')" title="Auto-detect orientation (Portrait or Landscape)">📐 Auto</button>
-              <button class="yt-aspect-btn" data-aspect="16-9" onclick="setAspectMode('16-9')" title="16:9 Landscape Mode">📺 16:9</button>
-              <button class="yt-aspect-btn" data-aspect="9-16" onclick="setAspectMode('9-16')" title="9:16 Portrait Mode">📱 9:16</button>
+              <button class="yt-aspect-btn active" data-aspect="auto" onclick="setAspectMode('auto')" title="Auto Orientation">📐 Auto</button>
+              <button class="yt-aspect-btn" data-aspect="16-9" onclick="setAspectMode('16-9')" title="16:9 Landscape">📺 16:9</button>
+              <button class="yt-aspect-btn" data-aspect="9-16" onclick="setAspectMode('9-16')" title="9:16 Portrait">📱 9:16</button>
             </div>
           </div>
 
-          <!-- YouTube Player Viewport -->
           <div class="video-viewport aspect-auto" id="viewport">
             <img id="streamImg" class="filter-none" src="/video.mjpeg" alt="Live Camera Stream" />
           </div>
 
-          <!-- YouTube Player Controls Bar -->
+          <!-- Light Slate Live Progress Line -->
+          <div class="yt-live-bar"></div>
+
           <div class="yt-controls-bar">
             <div class="yt-controls-left">
               <button class="yt-btn" id="audioToggleBtn" onclick="toggleAudioPlayback()" title="Mute / Unmute Real-Time Audio">
@@ -590,7 +630,7 @@ object WebStreamHtml {
               <div class="yt-volume-wrap">
                 <input type="range" class="yt-volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setAudioVolume(this.value)" title="Volume">
               </div>
-              <div class="vu-meter-container" style="max-width:110px;">
+              <div class="vu-meter-container">
                 <span class="vu-meter-label">VU</span>
                 <div class="vu-meter-bar">
                   <div class="vu-meter-fill" id="vuFill"></div>
@@ -603,23 +643,32 @@ object WebStreamHtml {
               <button class="yt-btn tea-btn" onclick="sendRewardTea()" title="Reward Tea to Streamer">☕ Tea</button>
               <button class="yt-btn" onclick="saveSnapshotToPc()" title="Save frame as JPEG to PC">📷 Snap</button>
               <button class="yt-btn" onclick="toggleMirror()" title="Flip horizontally">⇄ Mirror</button>
-              <button class="yt-btn" onclick="rotateNext()" title="Rotate Stream 90°">⟳ Rot <span id="rotBadge" style="font-size:0.7rem; color:var(--accent);">0°</span></button>
+              <button class="yt-btn" onclick="rotateNext()" title="Rotate Stream 90°">⟳ Rot <span id="rotBadge" style="font-size:0.7rem; color:#cbd5e1;">0°</span></button>
               <button class="yt-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
               <button class="yt-btn" onclick="reconnectStream()" title="Reload Stream">🔄</button>
             </div>
           </div>
         </div>
 
-        <!-- Hidden audio element as fallback -->
         <audio id="audioPlayer" src="/audio.wav" preload="none" style="display:none;"></audio>
       </div>
 
-      <!-- Right Column: All Tools & Controls -->
+      <!-- Right Column: Studio Controls Panel -->
       <div class="controls-panel">
-        <!-- Section 1: Camera Mode & Shutter -->
-        <div class="panel-section">
-          <h3><span>Camera Mode & Shutter</span> <span id="recTimer" style="color:var(--live); display:none; font-weight:700;">REC 00:00</span></h3>
-          <div class="control-row" style="margin-bottom:10px;">
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+          <button class="tab-btn" data-tab="allTab" onclick="selectTab('allTab', this)" title="View all tools on a single page">🌐 All Tools</button>
+          <button class="tab-btn active" data-tab="captureTab" onclick="selectTab('captureTab', this)">📸 Capture</button>
+          <button class="tab-btn" data-tab="filterTab" onclick="selectTab('filterTab', this)">🎨 Filters</button>
+          <button class="tab-btn" data-tab="qualityTab" onclick="selectTab('qualityTab', this)">⚡ Quality</button>
+          <button class="tab-btn" data-tab="cameraTab" onclick="selectTab('cameraTab', this)">🎥 Optics</button>
+          <button class="tab-btn" data-tab="proTab" onclick="selectTab('proTab', this)">🎛 Pro & OBS</button>
+        </div>
+
+        <!-- Tab 1: 📸 Capture & Mode -->
+        <div class="tab-content active" id="captureTab">
+          <h3><span>Camera Mode & Capture</span> <span id="recTimer" style="color:var(--live); display:none; font-weight:700;">REC 00:00</span></h3>
+          <div class="control-row">
             <span class="control-label">Mode:</span>
             <div class="chip-group" id="modeChips">
               <div class="chip active" data-mode="photo" onclick="setMode('photo')">Photo</div>
@@ -627,29 +676,30 @@ object WebStreamHtml {
               <div class="chip" data-mode="pro" onclick="setMode('pro')">Pro Manual</div>
             </div>
           </div>
-          <div class="control-row" style="margin-bottom:10px;">
+          <div class="control-row">
             <span class="control-label">Save To:</span>
             <div class="chip-group" id="saveDestChips">
               <div class="chip active" data-dest="phone" onclick="setSaveDestination('phone')" title="Record to Mobile gallery">📱 Mobile</div>
               <div class="chip" data-dest="both" onclick="setSaveDestination('both')" title="Save to Mobile gallery and auto-download to PC">📱💻 Mobile + PC</div>
             </div>
           </div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px;">
             <button class="btn-action btn-capture" id="captureBtn" onclick="takeSnapshot()">📸 Take Photo</button>
-            <button class="btn-action chip-record" id="recordBtn" onclick="toggleRecording()">⏺ Record Video (Mobile)</button>
+            <button class="btn-action chip-record" id="recordBtn" onclick="toggleRecording()">⏺ Record Video</button>
           </div>
           <div id="phoneVideoRow" style="margin-top:8px; display:none;">
-            <a id="downloadPhoneVideoBtn" href="/latest-video.mp4" download class="btn-action" style="display:block; text-align:center; text-decoration:none; background:#1e293b; color:var(--accent); border:1px solid var(--accent); padding:6px 10px; font-size:0.8rem; border-radius:8px;">
-              📥 Download Recorded MP4 Video
+            <a id="downloadPhoneVideoBtn" href="/latest-video.mp4" download class="btn-action" style="display:block; text-align:center; text-decoration:none; background:#1e293b; color:#cbd5e1; border:1px solid #cbd5e1; padding:6px 10px; font-size:0.8rem; border-radius:6px;">
+              📥 Download Recorded MP4
             </a>
           </div>
         </div>
 
-        <!-- Section 2: Filters & Color Grading (Blu-Ray & More) -->
-        <div class="panel-section">
-          <h3>Filters & Color Grading</h3>
+        <!-- Tab 2: 🎨 Filters & Color Grading -->
+        <div class="tab-content" id="filterTab">
+          <h3>Cinematic Color Grading</h3>
           <div class="chip-group" id="filterChips">
             <div class="chip active" data-filter="none" onclick="setFilter('none')">Normal</div>
+            <div class="chip" data-filter="imax" onclick="setFilter('imax')">🎬 IMAX 70mm</div>
             <div class="chip" data-filter="bluray" onclick="setFilter('bluray')">💿 Blu-Ray</div>
             <div class="chip" data-filter="tealorange" onclick="setFilter('tealorange')">🎬 Teal & Orange</div>
             <div class="chip" data-filter="vivid" onclick="setFilter('vivid')">🌈 Vivid</div>
@@ -660,15 +710,15 @@ object WebStreamHtml {
           </div>
         </div>
 
-        <!-- Section 3: Stream Quality Selection (Auto, 4K, 2K, 1080p, 720p, 480p) + Auto-Adjust -->
-        <div class="panel-section">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <h3 style="margin:0;">Stream Resolution</h3>
-            <button class="chip active" id="autoAdjustBtn" onclick="toggleAutoAdjust()" style="margin:0; font-size:11px; padding:3px 10px; cursor:pointer;" title="Automatically adjusts compression and bitrate for lag-free Wi-Fi stream">
+        <!-- Tab 3: ⚡ Quality & Performance -->
+        <div class="tab-content" id="qualityTab">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0;">Resolution</h3>
+            <button class="chip active" id="autoAdjustBtn" onclick="toggleAutoAdjust()" style="margin:0; font-size:11px; padding:3px 10px; cursor:pointer;" title="Automatically adjusts compression for lag-free streaming">
               ⚡ Auto-Smooth: ON
             </button>
           </div>
-          <div class="chip-group" id="qualityChips">
+          <div class="chip-group" id="qualityChips" style="margin-bottom:12px;">
             <div class="chip" data-q="auto" onclick="setQuality('auto')">Auto Resolution</div>
             <div class="chip" data-q="4k" onclick="setQuality('4k')">4K UHD</div>
             <div class="chip" data-q="2k" onclick="setQuality('2k')">2K QHD</div>
@@ -676,11 +726,8 @@ object WebStreamHtml {
             <div class="chip active" data-q="720p" onclick="setQuality('720p')">720p HD</div>
             <div class="chip" data-q="480p" onclick="setQuality('480p')">480p SD</div>
           </div>
-        </div>
 
-        <!-- Section 3b: Frame Rate Selection (Auto, 120, 60, 30, 24, 15 FPS) -->
-        <div class="panel-section">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3 style="margin:0;">Frame Rate (FPS)</h3>
             <span class="stat-pill" style="font-size:11px;" id="fpsTargetBadge">Auto FPS</span>
           </div>
@@ -694,14 +741,14 @@ object WebStreamHtml {
           </div>
         </div>
 
-        <!-- Section 4: Camera, Lens, Aspect Ratio & Orientation -->
-        <div class="panel-section">
+        <!-- Tab 4: 🎥 Camera, Optics & Lighting -->
+        <div class="tab-content" id="cameraTab">
           <h3>Camera, Lenses & Frame</h3>
           <div class="control-row">
             <span class="control-label">Facing:</span>
             <div class="chip-group">
               <button class="btn-action" style="padding:4px 10px; font-size:0.8rem;" onclick="flipCamera()">🔄 Flip Camera</button>
-              <select id="lensSelect" onchange="selectLens(this.value)" style="background:#1e293b; color:#fff; border:1px solid var(--card-border); border-radius:6px; padding:4px 8px; font-size:0.8rem;">
+              <select id="lensSelect" onchange="selectLens(this.value)" style="background:#334155; color:#fff; border:1px solid #475569; border-radius:6px; padding:4px 8px; font-size:0.8rem;">
                 <option value="">Default Lens</option>
               </select>
             </div>
@@ -723,11 +770,8 @@ object WebStreamHtml {
               <div class="chip" data-rot="270" onclick="setRotation(270)">270° CCW</div>
             </div>
           </div>
-        </div>
 
-        <!-- Section 5: Zoom & Exposure (EV) -->
-        <div class="panel-section">
-          <h3>Zoom & Exposure</h3>
+          <h3 style="margin-top:12px;">Zoom & Exposure</h3>
           <div class="control-row">
             <span class="control-label">Zoom:</span>
             <input type="range" id="zoomSlider" min="1.0" max="10.0" step="0.1" value="1.0" oninput="setZoom(this.value)">
@@ -744,11 +788,8 @@ object WebStreamHtml {
             <input type="range" id="evSlider" min="-4" max="4" step="1" value="0" oninput="setExposure(this.value)">
             <span class="slider-val" id="evVal">0 EV</span>
           </div>
-        </div>
 
-        <!-- Section 6: Lighting (Torch & Flash) -->
-        <div class="panel-section">
-          <h3>Lighting & Flash</h3>
+          <h3 style="margin-top:12px;">Lighting & Flash</h3>
           <div class="control-row">
             <span class="control-label">Torch:</span>
             <button class="btn-action" id="torchBtn" style="padding:4px 12px; font-size:0.8rem;" onclick="toggleTorch()">🔦 Toggle Torch</button>
@@ -765,12 +806,12 @@ object WebStreamHtml {
           </div>
         </div>
 
-        <!-- Section 7: Pro Manual Controls -->
-        <div class="panel-section">
-          <h3>Pro Manual Settings</h3>
+        <!-- Tab 5: 🎛 Pro Manual & OBS URLs -->
+        <div class="tab-content" id="proTab">
+          <h3>Pro Manual Controls</h3>
           <div class="control-row">
             <span class="control-label">ISO:</span>
-            <select id="isoSelect" onchange="setProIso(this.value)" style="background:#1e293b; color:#fff; border:1px solid var(--card-border); border-radius:6px; padding:4px 8px; font-size:0.8rem;">
+            <select id="isoSelect" onchange="setProIso(this.value)" style="background:#334155; color:#fff; border:1px solid #475569; border-radius:6px; padding:4px 8px; font-size:0.8rem;">
               <option value="auto">Auto ISO</option>
               <option value="100">ISO 100</option>
               <option value="200">ISO 200</option>
@@ -781,12 +822,12 @@ object WebStreamHtml {
               <option value="6400">ISO 6400</option>
             </select>
             <span class="control-label" style="min-width:30px; margin-left:8px;">WB:</span>
-            <select id="wbSelect" onchange="setProAwb(this.value)" style="background:#1e293b; color:#fff; border:1px solid var(--card-border); border-radius:6px; padding:4px 8px; font-size:0.8rem;">
+            <select id="wbSelect" onchange="setProAwb(this.value)" style="background:#334155; color:#fff; border:1px solid #475569; border-radius:6px; padding:4px 8px; font-size:0.8rem;">
               <option value="auto">Auto AWB</option>
-              <option value="2">Incandescent (Bulb)</option>
+              <option value="2">Incandescent</option>
               <option value="3">Fluorescent</option>
               <option value="4">Warm Fluorescent</option>
-              <option value="5">Daylight (Sun)</option>
+              <option value="5">Daylight</option>
               <option value="6">Cloudy</option>
               <option value="7">Twilight</option>
               <option value="8">Shade</option>
@@ -797,34 +838,31 @@ object WebStreamHtml {
             <input type="range" id="focusSlider" min="0" max="10" step="0.2" value="0" oninput="setProFocus(this.value)">
             <button class="btn-action" style="padding:2px 8px; font-size:0.75rem;" onclick="setProFocus('auto')">AF</button>
           </div>
-        </div>
 
-        <!-- Section 8: Streaming URLs (OBS & VLC) -->
-        <div class="panel-section">
-          <h3>OBS Studio & Streaming URLs</h3>
+          <h3 style="margin-top:14px;">OBS Studio & Streaming URLs</h3>
           <div class="url-box">
-            <label>OBS Video Source (Media Source / VLC)</label>
+            <label>OBS Video Stream (`/video.mjpeg`)</label>
             <div class="url-input-wrap">
               <input type="text" readonly value="$streamUrl" id="obsVideoInput">
               <button onclick="copyText('obsVideoInput', this)">Copy</button>
             </div>
           </div>
           <div class="url-box">
-            <label>OBS Audio Source (Media Source / VLC)</label>
+            <label>OBS Audio Stream (`/audio.wav`)</label>
             <div class="url-input-wrap">
               <input type="text" readonly value="$audioUrl" id="obsAudioInput">
               <button onclick="copyText('obsAudioInput', this)">Copy</button>
             </div>
           </div>
           <div class="url-box">
-            <label>OBS Clean Browser Source (Video + Audio combined)</label>
+            <label>OBS Clean Browser Source (`/obs`)</label>
             <div class="url-input-wrap">
               <input type="text" readonly value="$obsUrl" id="obsCleanInput">
               <button onclick="copyText('obsCleanInput', this)">Copy</button>
             </div>
           </div>
           <div class="url-box">
-            <label>Live JPEG Snapshot (HTTP Image / Static overlay)</label>
+            <label>Live JPEG Snapshot (`/snapshot.jpg`)</label>
             <div class="url-input-wrap">
               <input type="text" readonly value="$snapshotUrl" id="obsSnapshotInput">
               <button onclick="copyText('obsSnapshotInput', this)">Copy</button>
@@ -835,228 +873,43 @@ object WebStreamHtml {
     </div>
   </div>
 
+  <div id="toast" class="tea-toast"></div>
+
   <script>
+    function selectTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      else {
+        const activeBtn = document.querySelector('[data-tab="' + tabId + '"]');
+        if (activeBtn) activeBtn.classList.add('active');
+      }
+
+      if (tabId === 'allTab') {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('active'));
+      } else {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        const el = document.getElementById(tabId);
+        if (el) el.classList.add('active');
+      }
+      try { localStorage.setItem('obs_active_tab', tabId); } catch(e) {}
+    }
+
+    // Restore active tab on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTab = localStorage.getItem('obs_active_tab') || 'captureTab';
+      selectTab(savedTab);
+    });
+
     const streamImg = document.getElementById('streamImg');
     const viewport = document.getElementById('viewport');
-    const audioPlayer = document.getElementById('audioPlayer');
-
-    // -------------------------------------------------------------
-    // Real-Time Ultra-Low Latency Web Audio Engine (<50ms sync)
-    // -------------------------------------------------------------
-    let audioCtx = null;
-    let audioMasterGain = null;
-    let audioSpeakerGain = null;
-    let audioRecordDest = null;
-    let audioReader = null;
-    let audioAbortController = null;
-    let nextAudioPlayTime = 0;
-    let isSpeakerAudioActive = false;
-    let isAudioStreamRunning = false;
-
-    function initAudioGraph() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
-        audioMasterGain = audioCtx.createGain();
-        audioMasterGain.gain.value = 1.0;
-
-        audioSpeakerGain = audioCtx.createGain();
-        const volSlider = document.getElementById('volumeSlider');
-        const vol = volSlider ? parseFloat(volSlider.value) : 1.0;
-        audioSpeakerGain.gain.value = isSpeakerAudioActive ? vol : 0.0;
-
-        audioMasterGain.connect(audioSpeakerGain);
-        audioSpeakerGain.connect(audioCtx.destination);
-
-        audioRecordDest = audioCtx.createMediaStreamDestination();
-        audioMasterGain.connect(audioRecordDest);
-      }
-    }
-
-    function updateAudioBtnUI(active) {
-      const btn = document.getElementById('audioToggleBtn');
-      const icon = document.getElementById('audioIcon');
-      const text = document.getElementById('audioBtnText');
-      if (!btn || !icon || !text) return;
-      if (active) {
-        btn.classList.add('active');
-        icon.innerText = '🔊';
-        text.innerText = 'Mute Audio';
-      } else {
-        btn.classList.remove('active');
-        icon.innerText = '🔈';
-        text.innerText = 'Unmute Real-Time Audio';
-      }
-    }
-
-    function shouldRunAudioStream() {
-      return isSpeakerAudioActive || isPcRecording;
-    }
-
-    async function ensureAudioStreamRunning() {
-      initAudioGraph();
-      if (audioCtx.state === 'suspended') {
-        try { await audioCtx.resume(); } catch(e) {}
-      }
-      if (shouldRunAudioStream() && !isAudioStreamRunning) {
-        fetchAudioStream();
-      }
-    }
-
-    async function fetchAudioStream() {
-      if (isAudioStreamRunning) return;
-      isAudioStreamRunning = true;
-      if (audioAbortController) {
-        try { audioAbortController.abort(); } catch(e) {}
-      }
-      audioAbortController = new AbortController();
-
-      try {
-        const response = await fetch('/audio.wav?t=' + Date.now(), { signal: audioAbortController.signal });
-        if (!response.body) {
-          throw new Error('ReadableStream not supported');
-        }
-
-        const reader = response.body.getReader();
-        audioReader = reader;
-
-        let headerBytesLeft = 44;
-        let leftoverBytes = new Uint8Array(0);
-        nextAudioPlayTime = audioCtx.currentTime;
-
-        while (isAudioStreamRunning && shouldRunAudioStream()) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          if (!value || value.length === 0) continue;
-
-          let chunk = value;
-          // Skip exactly 44-byte WAV header cleanly even if split across packets
-          if (headerBytesLeft > 0) {
-            if (chunk.length <= headerBytesLeft) {
-              headerBytesLeft -= chunk.length;
-              continue;
-            }
-            chunk = chunk.subarray(headerBytesLeft);
-            headerBytesLeft = 0;
-          }
-
-          let full;
-          if (leftoverBytes.length > 0) {
-            full = new Uint8Array(leftoverBytes.length + chunk.length);
-            full.set(leftoverBytes, 0);
-            full.set(chunk, leftoverBytes.length);
-            leftoverBytes = new Uint8Array(0);
-          } else {
-            full = chunk;
-          }
-
-          const sampleCount = Math.floor(full.length / 2);
-          if (sampleCount === 0) {
-            leftoverBytes = full;
-            continue;
-          }
-
-          const usableBytes = sampleCount * 2;
-          if (full.length > usableBytes) {
-            leftoverBytes = full.slice(usableBytes);
-          }
-
-          // Direct byte extraction: avoids RangeError on unaligned Uint8Array chunks
-          const floatBuffer = new Float32Array(sampleCount);
-          for (let i = 0; i < sampleCount; i++) {
-            const low = full[i * 2];
-            const high = full[i * 2 + 1];
-            let val = (high << 8) | low;
-            if (val >= 32768) val -= 65536; // 16-bit signed
-            floatBuffer[i] = val / 32768.0;
-          }
-
-          if (audioCtx.state === 'suspended') {
-            try { await audioCtx.resume(); } catch(e) {}
-          }
-
-          const audioBuf = audioCtx.createBuffer(1, sampleCount, 44100);
-          audioBuf.copyToChannel(floatBuffer, 0);
-
-          const source = audioCtx.createBufferSource();
-          source.buffer = audioBuf;
-          source.connect(audioMasterGain);
-
-          const currentTime = audioCtx.currentTime;
-          // Maintain low-latency sync: snap to real-time if jitter/delay exceeds 80ms
-          if (nextAudioPlayTime < currentTime || nextAudioPlayTime > currentTime + 0.08) {
-            nextAudioPlayTime = currentTime + 0.015; // 15ms safety cushion
-          }
-
-          source.start(nextAudioPlayTime);
-          nextAudioPlayTime += audioBuf.duration;
-        }
-      } catch (err) {
-        if (err && err.name !== 'AbortError') console.warn('Real-time audio stream error:', err);
-      } finally {
-        isAudioStreamRunning = false;
-        if (audioReader) {
-          try { audioReader.cancel(); } catch(e) {}
-          audioReader = null;
-        }
-        if (shouldRunAudioStream()) {
-          setTimeout(fetchAudioStream, 800);
-        }
-      }
-    }
-
-    function toggleAudioPlayback() {
-      initAudioGraph();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      isSpeakerAudioActive = !isSpeakerAudioActive;
-      const volSlider = document.getElementById('volumeSlider');
-      const vol = volSlider ? parseFloat(volSlider.value) : 1.0;
-      if (audioSpeakerGain) {
-        audioSpeakerGain.gain.value = isSpeakerAudioActive ? vol : 0.0;
-      }
-      updateAudioBtnUI(isSpeakerAudioActive);
-      ensureAudioStreamRunning();
-    }
-
-    function setAudioVolume(val) {
-      const v = parseFloat(val);
-      if (audioSpeakerGain && isSpeakerAudioActive) {
-        audioSpeakerGain.gain.value = v;
-      }
-    }
-
-    function reconnectStream() {
-      streamImg.src = '/video.mjpeg?t=' + Date.now();
-      if (shouldRunAudioStream()) {
-        if (audioAbortController) {
-          try { audioAbortController.abort(); } catch(e) {}
-        }
-        setTimeout(ensureAudioStreamRunning, 250);
-      }
-    }
-
-    streamImg.onerror = () => setTimeout(reconnectStream, 1500);
-
-    function toggleMirror() {
-      viewport.classList.toggle('mirrored');
-    }
-
-    // Aspect ratio mode: 'auto', '16-9', or '9-16'
-    let aspectMode = localStorage.getItem('obs_player_aspect') || 'auto';
+    let aspectMode = 'auto';
 
     function setAspectMode(mode) {
       aspectMode = mode;
-      try { localStorage.setItem('obs_player_aspect', mode); } catch(e) {}
       document.querySelectorAll('.yt-aspect-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-aspect') === mode);
       });
-      applyAspectMode();
-    }
-
-    function applyAspectMode() {
-      if (!viewport) return;
-      viewport.classList.remove('aspect-16-9', 'aspect-9-16', 'aspect-auto');
+      viewport.classList.remove('aspect-auto', 'aspect-16-9', 'aspect-9-16');
       if (aspectMode === '16-9') {
         viewport.classList.add('aspect-16-9');
         viewport.style.aspectRatio = '16 / 9';
@@ -1076,13 +929,8 @@ object WebStreamHtml {
       const nw = streamImg.naturalWidth;
       const nh = streamImg.naturalHeight;
       if (nw > 0 && nh > 0) {
-        if (nh > nw) {
-          viewport.style.aspectRatio = '9 / 16';
-          viewport.style.maxHeight = '70vh';
-        } else {
-          viewport.style.aspectRatio = '16 / 9';
-          viewport.style.maxHeight = 'none';
-        }
+        viewport.style.aspectRatio = nw + ' / ' + nh;
+        viewport.style.maxHeight = (nh > nw) ? '70vh' : 'none';
       } else {
         viewport.style.aspectRatio = '16 / 9';
         viewport.style.maxHeight = 'none';
@@ -1137,11 +985,11 @@ object WebStreamHtml {
       if (isPcRecording || isPhoneRecording || isStartingRecording) return;
       if (capBtn) {
         if (saveDestination === 'both') capBtn.innerText = '📸 Take Photo (Mobile PC)';
-        else capBtn.innerText = '📸 Take Photo (Mobile)';
+        else capBtn.innerText = '📸 Take Photo';
       }
       if (recBtn) {
-        if (saveDestination === 'both') recBtn.innerText = '⏺ Record MP4 (Mobile PC)';
-        else recBtn.innerText = '⏺ Record Video (Mobile)';
+        if (saveDestination === 'both') recBtn.innerText = '⏺ Record Video (Mobile PC)';
+        else recBtn.innerText = '⏺ Record Video';
       }
     }
 
@@ -1249,253 +1097,122 @@ object WebStreamHtml {
           if (done) break;
 
           const next = new Uint8Array(buffer.length + value.length);
-          next.set(buffer, 0);
+          next.set(buffer);
           next.set(value, buffer.length);
           buffer = next;
 
-          // Search for SOI: 0xFF, 0xD8
-          let soi = -1;
+          let start = -1;
           for (let i = 0; i < buffer.length - 1; i++) {
-            if (buffer[i] === 0xFF && buffer[i + 1] === 0xD8) {
-              soi = i;
-              break;
+            if (buffer[i] === 0xFF && buffer[i+1] === 0xD8) { start = i; break; }
+          }
+          if (start >= 0) {
+            let end = -1;
+            for (let i = start + 2; i < buffer.length - 1; i++) {
+              if (buffer[i] === 0xFF && buffer[i+1] === 0xD9) { end = i + 2; break; }
             }
-          }
-          if (soi === -1) {
-            if (buffer.length > 1) buffer = buffer.slice(buffer.length - 1);
-            continue;
-          }
-
-          // Search for EOI: 0xFF, 0xD9 after SOI
-          let eoi = -1;
-          for (let i = soi + 2; i < buffer.length - 1; i++) {
-            if (buffer[i] === 0xFF && buffer[i + 1] === 0xD9) {
-              eoi = i + 2;
-              break;
-            }
-          }
-
-          if (eoi !== -1) {
-            const frameBytes = buffer.slice(soi, eoi);
-            buffer = buffer.slice(eoi);
-            const blob = new Blob([frameBytes], { type: 'image/jpeg' });
-            if (window.createImageBitmap) {
+            if (end > start) {
+              const jpegData = buffer.subarray(start, end);
+              buffer = buffer.subarray(end);
+              const blob = new Blob([jpegData], { type: 'image/jpeg' });
               createImageBitmap(blob).then(bmp => {
-                if (!isPcRecording) {
-                  bmp.close();
-                  return;
-                }
-                const old = pcCurrentFrame;
+                if (pcCurrentFrame) try { pcCurrentFrame.close(); } catch(e) {}
                 pcCurrentFrame = bmp;
-                if (old) old.close();
               }).catch(() => {});
             }
           }
+          if (buffer.length > 2 * 1024 * 1024) buffer = new Uint8Array(0);
         }
-      } catch (err) {
-        if (err && err.name !== 'AbortError') console.warn('Frame pump error:', err);
+      } catch(e) {
+        console.warn('MJPEG pump stopped:', e);
       }
     }
 
     function startPcRecording() {
-      if (isPcRecording) return;
-      if (!window.MediaRecorder) {
-        showToast('⚠️ MediaRecorder API unsupported in this browser');
-        return;
-      }
-
-      // Ensure audio graph is initialized and stream is running for audio recording
-      initAudioGraph();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        try { audioCtx.resume(); } catch(e) {}
-      }
-      ensureAudioStreamRunning();
-
-      const img = document.getElementById('streamImg');
-      const w = (img && img.naturalWidth) || 1280;
-      const h = (img && img.naturalHeight) || 720;
-
-      if (!pcRecCanvas) {
+      try {
         pcRecCanvas = document.createElement('canvas');
-      }
-      pcRecCanvas.width = w;
-      pcRecCanvas.height = h;
-      pcRecCtx = pcRecCanvas.getContext('2d');
+        pcRecCanvas.width = streamImg.naturalWidth || 1280;
+        pcRecCanvas.height = streamImg.naturalHeight || 720;
+        pcRecCtx = pcRecCanvas.getContext('2d');
 
-      // Draw initial frame
-      try {
-        if (img) pcRecCtx.drawImage(img, 0, 0, w, h);
-      } catch(e) {}
-
-      let stream;
-      try {
-        stream = pcRecCanvas.captureStream(30);
-      } catch(e) {
-        console.error('captureStream failed:', e);
-        showToast('⚠️ Could not capture video stream on PC');
-        return;
-      }
-
-      // Route audio track directly from audioRecordDest into recording stream
-      try {
-        if (audioRecordDest) {
-          const tracks = audioRecordDest.stream.getAudioTracks();
-          if (tracks.length > 0) {
-            stream.addTrack(tracks[0]);
-          }
+        const stream = pcRecCanvas.captureStream(30);
+        if (audioStreamTrack && audioStreamTrack.readyState === 'live') {
+          stream.addTrack(audioStreamTrack);
         }
-      } catch(e) {
-        console.warn('Could not attach audio track:', e);
-      }
 
-      const hasAudio = stream.getAudioTracks().length > 0;
-      let mimeType = '';
-      // Prioritize MP4 so Windows Media Player / default Movies & TV app open it out-of-the-box
-      const candidates = hasAudio ? [
-        'video/mp4;codecs=avc1,mp4a.40.2',
-        'video/mp4;codecs=avc1,aac',
-        'video/mp4;codecs=avc1,opus',
-        'video/mp4',
-        'video/webm;codecs=h264,opus',
-        'video/webm;codecs=vp9,opus',
-        'video/webm;codecs=vp8,opus',
-        'video/webm'
-      ] : [
-        'video/mp4;codecs=avc1',
-        'video/mp4',
-        'video/webm;codecs=h264',
-        'video/webm;codecs=vp9',
-        'video/webm;codecs=vp8',
-        'video/webm'
-      ];
-      for (const t of candidates) {
-        if (MediaRecorder.isTypeSupported(t)) {
-          mimeType = t;
-          break;
+        let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm;codecs=vp8,opus' };
         }
-      }
-
-      pcRecordedChunks = [];
-      try {
-        if (mimeType) {
-          pcMediaRecorder = new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 4000000 });
-        } else {
-          pcMediaRecorder = new MediaRecorder(stream);
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm' };
         }
-      } catch(e) {
-        try {
-          pcMediaRecorder = new MediaRecorder(stream);
-          mimeType = pcMediaRecorder.mimeType || 'video/mp4';
-        } catch(e2) {
-          console.error('Failed to create MediaRecorder:', e2);
-          showToast('❌ MediaRecorder initialization failed');
-          return;
-        }
-      }
 
-      pcMediaRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          pcRecordedChunks.push(e.data);
-        }
-      };
+        pcMediaRecorder = new MediaRecorder(stream, options);
+        pcRecordedChunks = [];
 
-      pcMediaRecorder.onstop = () => {
-        finalizePcRecording(pcMediaRecorder ? (pcMediaRecorder.mimeType || mimeType) : mimeType);
-      };
+        pcMediaRecorder.ondataavailable = e => {
+          if (e.data && e.data.size > 0) pcRecordedChunks.push(e.data);
+        };
 
-      try {
+        pcMediaRecorder.onstop = () => {
+          const blob = new Blob(pcRecordedChunks, { type: pcMediaRecorder.mimeType || 'video/webm' });
+          const now = new Date();
+          const pad = n => String(n).padStart(2, '0');
+          const ext = (pcMediaRecorder.mimeType && pcMediaRecorder.mimeType.includes('mp4')) ? 'mp4' : 'webm';
+          const filename = 'ObsWifiCams_StreamRec_' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + '.' + ext;
+          downloadBlob(blob, filename);
+          showToast('💾 PC Video saved: ' + filename);
+        };
+
+        isPcRecording = true;
+        pcRecordStartTime = Date.now();
         pcMediaRecorder.start(1000);
+
+        startMjpegFramePump();
+
+        pcDrawInterval = setInterval(() => {
+          if (!pcRecCtx) return;
+          if (pcCurrentFrame) {
+            if (pcRecCanvas.width !== pcCurrentFrame.width || pcRecCanvas.height !== pcCurrentFrame.height) {
+              pcRecCanvas.width = pcCurrentFrame.width;
+              pcRecCanvas.height = pcCurrentFrame.height;
+            }
+            pcRecCtx.drawImage(pcCurrentFrame, 0, 0);
+          } else if (streamImg.complete && streamImg.naturalWidth > 0) {
+            if (pcRecCanvas.width !== streamImg.naturalWidth || pcRecCanvas.height !== streamImg.naturalHeight) {
+              pcRecCanvas.width = streamImg.naturalWidth;
+              pcRecCanvas.height = streamImg.naturalHeight;
+            }
+            if (activeFilter && activeFilter !== 'none') {
+              pcRecCtx.filter = getComputedStyle(streamImg).filter;
+            }
+            pcRecCtx.drawImage(streamImg, 0, 0);
+          }
+        }, 1000 / 30);
+
+        showToast('⚪ PC Studio Recording started');
       } catch(e) {
-        console.error('MediaRecorder.start() failed:', e);
-        showToast('❌ MediaRecorder start failed');
-        return;
+        console.error('Failed to start PC recording:', e);
+        isPcRecording = false;
+        showToast('❌ Failed to start PC video recording');
       }
-
-      isPcRecording = true;
-      pcRecordStartTime = Date.now();
-
-      // Start reading live MJPEG frames to bypass Chromium multipart canvas caching bug
-      startMjpegFramePump();
-
-      // Continuous 30 FPS draw loop without resizing canvas
-      if (pcDrawInterval) clearInterval(pcDrawInterval);
-      pcDrawInterval = setInterval(renderPcRecordFrame, 1000 / 30);
-
-      if (pcTimerInterval) clearInterval(pcTimerInterval);
-      pcTimerInterval = setInterval(updateRecordingUI, 1000);
-
-      updateRecordingUI();
-      showToast('⏺ PC Video Recording started' + (hasAudio ? ' (with audio)' : ''));
-    }
-
-    function renderPcRecordFrame() {
-      if (!isPcRecording || !pcRecCanvas || !pcRecCtx) return;
-      const img = document.getElementById('streamImg');
-      try {
-        if (activeFilter && activeFilter !== 'none') {
-          pcRecCtx.filter = img ? getComputedStyle(img).filter : 'none';
-        } else {
-          pcRecCtx.filter = 'none';
-        }
-      } catch(e) {
-        pcRecCtx.filter = 'none';
-      }
-      try {
-        if (pcCurrentFrame) {
-          pcRecCtx.drawImage(pcCurrentFrame, 0, 0, pcRecCanvas.width, pcRecCanvas.height);
-        } else if (img) {
-          pcRecCtx.drawImage(img, 0, 0, pcRecCanvas.width, pcRecCanvas.height);
-        }
-      } catch(e) {}
     }
 
     function stopPcRecording() {
       if (!isPcRecording) return;
       isPcRecording = false;
-      if (pcMjpegAbort) {
-        try { pcMjpegAbort.abort(); } catch(e) {}
-        pcMjpegAbort = null;
+      if (pcMjpegAbort) { try { pcMjpegAbort.abort(); } catch(e) {} }
+      if (pcDrawInterval) clearInterval(pcDrawInterval);
+      if (pcTimerInterval) clearInterval(pcTimerInterval);
+      if (pcMediaRecorder && pcMediaRecorder.state !== 'inactive') {
+        pcMediaRecorder.stop();
       }
-      if (pcCurrentFrame) {
-        try { pcCurrentFrame.close(); } catch(e) {}
-        pcCurrentFrame = null;
-      }
-      if (pcDrawInterval) {
-        clearInterval(pcDrawInterval);
-        pcDrawInterval = null;
-      }
-      if (pcTimerInterval) {
-        clearInterval(pcTimerInterval);
-        pcTimerInterval = null;
-      }
-      if (pcMediaRecorder && pcMediaRecorder.state === 'recording') {
-        try { pcMediaRecorder.requestData(); } catch(e) {}
-        try { pcMediaRecorder.stop(); } catch(e) {}
-      }
-      // If speaker audio is not active, stop fetching audio to save bandwidth
-      if (!shouldRunAudioStream() && audioAbortController) {
-        try { audioAbortController.abort(); } catch(e) {}
-        isAudioStreamRunning = false;
-      }
-    }
-
-    function finalizePcRecording(mimeType) {
-      if (pcRecordedChunks.length === 0) return;
-      const isMp4 = !mimeType || mimeType.includes('mp4');
-      const ext = isMp4 ? '.mp4' : '.webm';
-      const blob = new Blob(pcRecordedChunks, { type: mimeType || (isMp4 ? 'video/mp4' : 'video/webm') });
-      const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const filename = 'ObsWifiCams_Video_' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + ext;
-
-      downloadBlob(blob, filename);
-      showToast('💾 Video saved to PC (' + (isMp4 ? 'MP4' : 'WebM') + '): ' + filename);
-      pcRecordedChunks = [];
+      if (pcCurrentFrame) { try { pcCurrentFrame.close(); } catch(e) {} pcCurrentFrame = null; }
     }
 
     let isStartingRecording = false;
     let startRecordReqTime = 0;
-    let lastRecordDest = 'pc';
+    let lastRecordDest = 'phone';
 
     function downloadUrl(url, filename) {
       const a = document.createElement('a');
@@ -1528,6 +1245,9 @@ object WebStreamHtml {
           try { audioCtx.resume(); } catch(e) {}
         }
         lastRecordDest = dest;
+        if (dest === 'both') {
+          startPcRecording();
+        }
         isStartingRecording = true;
         startRecordReqTime = Date.now();
         postApi('/api/record').then(() => {
@@ -1551,10 +1271,7 @@ object WebStreamHtml {
         if (recTimer) {
           recTimer.style.display = 'inline';
           let sec = phoneRecordingSeconds;
-          let label = 'REC (Mobile)';
-          if (saveDestination === 'both') {
-            label = 'REC (Mobile PC)';
-          }
+          let label = 'REC';
           if (isStartingRecording && !isPhoneRecording) {
             label = 'REC (Starting...)';
             sec = 0;
@@ -1583,20 +1300,16 @@ object WebStreamHtml {
       });
     }
 
-    // Filter controls (Blu-Ray, Teal & Orange, Vivid, Vintage, Noir, Cyberpunk, Invert)
     let activeFilter = 'none';
 
     function setFilter(filterName) {
       activeFilter = filterName;
-      // Instant browser CSS filter
       streamImg.className = 'filter-' + filterName;
 
-      // Update active chip
       document.querySelectorAll('#filterChips .chip').forEach(c => {
         c.classList.toggle('active', c.getAttribute('data-filter') === filterName);
       });
 
-      // Synchronize with phone encoder for MJPEG stream output
       postApi('/api/filter', { name: filterName });
     }
 
@@ -1712,14 +1425,12 @@ object WebStreamHtml {
           if (d.facing) document.getElementById('facingBadge').innerText = d.facing;
           if (d.clients !== undefined) document.getElementById('clientsVal').innerText = d.clients;
 
-          // Mode chip synchronization
           if (d.mode) {
             document.querySelectorAll('#modeChips .chip').forEach(c => {
               c.classList.toggle('active', c.getAttribute('data-mode') === d.mode);
             });
           }
 
-          // Filter synchronization
           if (d.filter && d.filter !== activeFilter) {
             activeFilter = d.filter;
             streamImg.className = 'filter-' + d.filter;
@@ -1728,21 +1439,18 @@ object WebStreamHtml {
             });
           }
 
-          // Aspect synchronization
           if (d.aspect) {
             document.querySelectorAll('#aspectChips .chip').forEach(c => {
               c.classList.toggle('active', c.getAttribute('data-aspect') === d.aspect);
             });
           }
 
-          // Flash synchronization
           if (d.flash) {
             document.querySelectorAll('#flashChips .chip').forEach(c => {
               c.classList.toggle('active', c.getAttribute('data-flash') === d.flash);
             });
           }
 
-          // Audio telemetry & VU meter
           if (d.audioSupported) {
             document.getElementById('audioStat').innerText = 'Real-time';
             const lvl = d.audioLevel || 0;
@@ -1752,14 +1460,12 @@ object WebStreamHtml {
             document.getElementById('audioStat').innerText = 'No Mic Perm';
           }
 
-          // Quality active chip
           if (d.quality) {
             document.querySelectorAll('#qualityChips .chip').forEach(c => {
               c.classList.toggle('active', c.getAttribute('data-q') === d.quality);
             });
           }
 
-          // Frame rate (FPS) active chip
           if (d.targetFps) {
             document.querySelectorAll('#fpsChips .chip').forEach(c => {
               c.classList.toggle('active', c.getAttribute('data-fps') === d.targetFps);
@@ -1818,11 +1524,10 @@ object WebStreamHtml {
             }
           }
 
-          // Torch & Flash state
           const torchBtn = document.getElementById('torchBtn');
           if (d.isTorchOn) {
-            torchBtn.style.background = 'var(--accent)';
-            torchBtn.style.color = '#090d16';
+            torchBtn.style.background = '#cbd5e1';
+            torchBtn.style.color = '#0f172a';
           } else {
             torchBtn.style.background = '';
             torchBtn.style.color = '';
@@ -1835,7 +1540,6 @@ object WebStreamHtml {
             ts.value = d.torchStrength;
           }
 
-          // Zoom limits
           if (d.minZoom && d.maxZoom) {
             const zs = document.getElementById('zoomSlider');
             zs.min = d.minZoom;
@@ -1846,7 +1550,6 @@ object WebStreamHtml {
             }
           }
 
-          // EV limits
           if (d.evMin !== undefined && d.evMax !== undefined) {
             const es = document.getElementById('evSlider');
             es.min = d.evMin;
@@ -1857,7 +1560,6 @@ object WebStreamHtml {
             }
           }
 
-          // Recording state
           const wasPhoneRecording = isPhoneRecording;
           if (isStartingRecording) {
             if (d.isRecording) {
@@ -1886,11 +1588,10 @@ object WebStreamHtml {
                 downloadUrl('/latest-video.mp4', filename);
               }, 500);
             } else {
-              showToast('📱 Video saved to Mobile gallery! <a href="/latest-video.mp4" download style="color:var(--accent);text-decoration:underline;margin-left:4px;">Download MP4 to PC</a>');
+              showToast('📱 Video saved to Mobile gallery!');
             }
           }
 
-          // Lens list population
           if (d.lenses && d.lenses.length > 0) {
             const ls = document.getElementById('lensSelect');
             if (ls.options.length <= 1) {
@@ -1908,110 +1609,126 @@ object WebStreamHtml {
     }
 
     function sendRewardTea() {
-      fetch('/api/tea', { method: 'POST' })
-        .then(r => r.json())
-        .then(d => {
-          showTeaToast('🍵 Thank you for the tea! Reward sent to camera!');
-        })
-        .catch(() => {
-          showTeaToast('🍵 Thank you for the tea! Reward sent to camera!');
-        });
+      postApi('/api/tea').then(() => showToast('☕ Tea reward sent to streamer!'));
     }
 
     function showToast(msg) {
-      showTeaToast(msg);
-    }
-
-    function showTeaToast(msg) {
-      let t = document.getElementById('teaToast');
-      if (!t) {
-        t = document.createElement('div');
-        t.id = 'teaToast';
-        t.className = 'tea-toast';
-        document.body.appendChild(t);
-      }
+      const t = document.getElementById('toast');
+      if (!t) return;
       t.innerHTML = msg;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3500);
+      setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    window.addEventListener('beforeunload', (e) => {
-      if (isPcRecording) {
-        stopPcRecording();
-        e.preventDefault();
-        e.returnValue = '';
+    function toggleMirror() {
+      viewport.classList.toggle('mirrored');
+    }
+
+    function reconnectStream() {
+      streamImg.src = '/video.mjpeg?t=' + Date.now();
+      showToast('🔄 Stream reloaded');
+    }
+
+    // Live Web Audio Engine (WAV stream decoding)
+    let audioCtx = null;
+    let audioStreamTrack = null;
+    let isAudioPlaying = false;
+    let audioGainNode = null;
+
+    function toggleAudioPlayback() {
+      if (isAudioPlaying) {
+        stopAudioPlayback();
+      } else {
+        startAudioPlayback();
       }
-    });
+    }
 
-    // Initialize save destination, aspect mode and UI labels
-    setSaveDestination(saveDestination);
-    setAspectMode(aspectMode);
+    function initAudioGraph() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioCtx = new AudioContext();
+          audioGainNode = audioCtx.createGain();
+          audioGainNode.connect(audioCtx.destination);
+        }
+      }
+    }
 
-    setInterval(updateStatus, 800);
+    function setAudioVolume(val) {
+      initAudioGraph();
+      if (audioGainNode) {
+        audioGainNode.gain.value = parseFloat(val);
+      }
+      const el = document.getElementById('audioPlayer');
+      if (el) el.volume = parseFloat(val);
+    }
+
+    async function startAudioPlayback() {
+      initAudioGraph();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        try { await audioCtx.resume(); } catch(e) {}
+      }
+
+      const btn = document.getElementById('audioToggleBtn');
+      const icon = document.getElementById('audioIcon');
+      const text = document.getElementById('audioBtnText');
+
+      try {
+        const audioEl = document.getElementById('audioPlayer');
+        audioEl.src = '/audio.wav?t=' + Date.now();
+        await audioEl.play();
+        isAudioPlaying = true;
+        if (btn) btn.classList.add('active');
+        if (icon) icon.innerText = '🔊';
+        if (text) text.innerText = 'Live Audio';
+        showToast('🔊 Live audio enabled');
+      } catch(e) {
+        console.warn('Audio play error:', e);
+        showToast('⚠️ Click player to allow audio playback');
+      }
+    }
+
+    function stopAudioPlayback() {
+      const audioEl = document.getElementById('audioPlayer');
+      if (audioEl) {
+        audioEl.pause();
+        audioEl.src = '';
+      }
+      isAudioPlaying = false;
+      const btn = document.getElementById('audioToggleBtn');
+      const icon = document.getElementById('audioIcon');
+      const text = document.getElementById('audioBtnText');
+      if (btn) btn.classList.remove('active');
+      if (icon) icon.innerText = '🔈';
+      if (text) text.innerText = 'Unmute';
+    }
+
+    // Start telemetry loop
+    setInterval(updateStatus, 1000);
     updateStatus();
+    updateShutterButtonLabels();
   </script>
 </body>
 </html>
-""".trimIndent()
+        """.trimIndent()
     }
 
-    fun getObsHtml(streamUrl: String, audioUrl: String): String {
-        return """
+    fun getObsHtml(streamUrl: String, audioUrl: String): String = """
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ObsWifiCams OBS Stream</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    .filter-none,
-    .filter-bluray,
-    .filter-tealorange,
-    .filter-vivid,
-    .filter-vintage,
-    .filter-noir,
-    .filter-cyberpunk,
-    .filter-invert { filter: none !important; }
+    html, body { width: 100%; height: 100%; background: transparent; overflow: hidden; }
+    img { width: 100%; height: 100%; object-fit: contain; }
   </style>
 </head>
 <body>
-  <img id="stream" src="$streamUrl" alt="Live Camera Video" />
-  <audio id="audio" src="$audioUrl" autoplay></audio>
-  <script>
-    const img = document.getElementById('stream');
-    const audio = document.getElementById('audio');
-    
-    // Check if filter param exists in URL, e.g. ?filter=bluray
-    const params = new URLSearchParams(window.location.search);
-    const filter = params.get('filter');
-    if (filter) {
-      fetch('/api/filter?name=' + encodeURIComponent(filter), { method: 'POST' }).catch(()=>{});
-    }
-
-    img.onerror = () => {
-      setTimeout(() => { img.src = '$streamUrl?t=' + Date.now(); }, 1500);
-    };
-    audio.onerror = () => {
-      setTimeout(() => { audio.src = '$audioUrl?t=' + Date.now(); audio.play().catch(()=>{}); }, 1500);
-    };
-  </script>
+  <img src="$streamUrl" alt="Live Stream" />
+  <audio src="$audioUrl" autoplay style="display:none;"></audio>
 </body>
 </html>
 """.trimIndent()
-    }
 }

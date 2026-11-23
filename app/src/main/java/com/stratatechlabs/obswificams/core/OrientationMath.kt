@@ -94,7 +94,7 @@ object OrientationMath {
 
     /**
      * Level-indicator tilt for the current snapped orientation: how far the
-     * horizon line is from level, normalised to (-45, 45].
+     * horizon line is from level, normalized to range -45 to 45 degrees.
      */
     fun tiltFromLevel(rollDegrees: Float, orientationDegrees: Int): Float {
         var t = rollDegrees + orientationDegrees

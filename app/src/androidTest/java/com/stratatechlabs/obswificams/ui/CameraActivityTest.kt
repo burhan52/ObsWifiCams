@@ -54,7 +54,7 @@ import org.junit.runner.RunWith
 
 /**
  * End-to-end viewfinder tests on a real camera. Every capture made here is
- * deleted afterwards, and the app's preferences are restored.
+ * deleted afterward, and the app's preferences are restored.
  */
 @RunWith(AndroidJUnit4::class)
 class CameraActivityTest {
@@ -87,7 +87,11 @@ class CameraActivityTest {
     @After
     fun tearDown() {
         if (!::existing.isInitialized) return
-        runBlocking { newItems().forEach { repository.delete(it) } }
+        runBlocking {
+            repository.loadAll()
+                .filter { it.uri !in existing }
+                .forEach { repository.delete(it) }
+        }
         prefs.edit().clear().apply {
             savedPrefs.forEach { (k, v) ->
                 when (v) {
@@ -168,9 +172,9 @@ class CameraActivityTest {
             scenario.onActivity { it.findViewById<View>(R.id.flipButton).performClick() }
             waitUntil(10_000, message = "front camera") { scenario.state().let { it.ready && it.isFront } }
             // Every individually exposed camera must bind (or fall back) without crashing.
-            for (lens in start.lenses) {
-                scenario.onActivity { it.selectCameraForTest(lens.cameraId) }
-                waitUntil(10_000, message = "camera ${lens.cameraId}") { scenario.state().let { it.ready && it.currentCameraId != null } }
+            for ((cameraId) in start.lenses) {
+                scenario.onActivity { it.selectCameraForTest(cameraId) }
+                waitUntil(10_000, message = "camera $cameraId") { scenario.state().let { it.ready && it.currentCameraId != null } }
             }
         }
     }
@@ -324,7 +328,7 @@ class CameraActivityTest {
 
     @Test
     fun locationTaggingWritesGpsExif() {
-        // Granted (not revoked afterwards: revoking a runtime permission kills the process under test).
+        // Granted (not revoked afterward: revoking a runtime permission kills the process under test).
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
         automation.grantRuntimePermission(context.packageName, Manifest.permission.ACCESS_FINE_LOCATION)
         automation.grantRuntimePermission(context.packageName, Manifest.permission.ACCESS_COARSE_LOCATION)

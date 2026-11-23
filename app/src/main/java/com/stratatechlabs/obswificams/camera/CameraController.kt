@@ -129,7 +129,7 @@ import java.util.concurrent.atomic.AtomicReference
 class CameraController(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
-    private val previewView: PreviewView,
+    private var previewView: PreviewView,
     private val settings: AppSettings,
 ) {
     private val _state = MutableStateFlow(CameraState())
@@ -227,7 +227,7 @@ class CameraController(
     )
 
     /**
-     * Initialises CameraX and binds the first camera.
+     * Initializes CameraX and binds the first camera.
      *
      * @return false if no camera could be bound at all.
      */
@@ -409,7 +409,7 @@ class CameraController(
 
     /**
      * Binds one camera. In [safeMode] optional features (analysis, Ultra HDR,
-     * RAW, ZSL, extensions, HDR video) are dropped to maximise compatibility.
+     * RAW, ZSL, extensions, HDR video) are dropped to maximize compatibility.
      *
      * @return the Camera2 id that was bound.
      */
@@ -524,7 +524,7 @@ class CameraController(
         imageCapture = null
         analysis = null
         boundPeaking = false
-        val video = obtainVideoCapture(mainInfo, front = st.dualFrontMain, safeMode = true, dual = true)
+        val video = obtainVideoCapture(mainInfo, safeMode = true, dual = true)
         // The same UseCaseGroup goes to both cameras; CameraX composes them per CompositionSettings.
         val group = UseCaseGroup.Builder().addUseCase(preview).addUseCase(video).build()
         val configs = listOf(
@@ -608,6 +608,15 @@ class CameraController(
         fallbackReader = null
     }
 
+    fun attachPreviewView(newPreviewView: PreviewView) {
+        if (this.previewView === newPreviewView) return
+        this.previewView = newPreviewView
+        closeFallbackSurface()
+        mainExecutor.execute {
+            bind()
+        }
+    }
+
     fun onScreenResumed() {
         if (fallbackSurface != null) {
             closeFallbackSurface()
@@ -647,7 +656,7 @@ class CameraController(
         boundPeaking = false
         when (mode) {
             CaptureMode.VIDEO -> {
-                useCases += obtainVideoCapture(info, front, safeMode, dual = false)
+                useCases += obtainVideoCapture(info, safeMode, dual = false)
                 val streaming = wifiFrameConsumer != null
                 if (allowAnalysis && !safeMode && !streaming && isHardwareLevelFullOrBetter(info)) {
                     useCases += buildSnapshotCapture(aspectStrategy)
@@ -738,7 +747,7 @@ class CameraController(
         .also { imageCapture = it }
 
     /** Reuses the existing VideoCapture when possible so persistent recordings survive rebinds. */
-    private fun obtainVideoCapture(info: CameraInfo, @Suppress("UNUSED_PARAMETER") front: Boolean, safeMode: Boolean, dual: Boolean): VideoCapture<Recorder> {
+    private fun obtainVideoCapture(info: CameraInfo, safeMode: Boolean, dual: Boolean): VideoCapture<Recorder> {
         val caps = Recorder.getVideoCapabilities(info)
         val config = VideoConfig(
             // Concurrent streams are limited to 720p/1440p by the platform; ask for at most FHD.
@@ -968,7 +977,7 @@ class CameraController(
         if (st.mode == CaptureMode.DUAL) rebind()
     }
 
-    /** Sets the torch brightness (1..torchStrengthMax) on devices that support it. */
+    /** Sets the torch brightness (1 to torchStrengthMax) on devices that support it. */
     fun setTorchStrength(level: Int) {
         val st = _state.value
         if (!st.torchStrengthAdjustable) return
@@ -1017,11 +1026,9 @@ class CameraController(
 
     /**
      * Called by the activity when the window shape or display rotation changes.
-     * Single-camera modes rebind when the shape flips so the ViewPort crop follows (a
-     * persistent recording survives that). DUAL has no ViewPort, but CameraX lays the
-     * composition out for the display rotation at bind time, so it rebinds on any
-     * rotation change to keep the inset in the chosen screen corner — except while
-     * recording, where a rebind would end the clip.
+     * Single-camera modes rebind when the shape flips so ViewPort crop follows.
+     * DUAL rebinds on any rotation change to keep the inset in the chosen corner.
+     * Rebinds are skipped during recording to avoid ending the clip.
      */
     fun onWindowChanged(landscape: Boolean, rotation: Int) {
         // Never re-crop a running clip: the stale values make the activity's call after the
@@ -1041,10 +1048,10 @@ class CameraController(
         if (_state.value.mode == CaptureMode.PHOTO) rebind()
     }
 
-    /** [flash] adjusted for [mode]: torch modes know only OFF/TORCH, photo modes never keep the torch. */
+    /** [flash] adjusted for [mode]: preserves TORCH if active, or returns compatible option. */
     private fun flashFor(mode: CaptureMode, flash: FlashOption): FlashOption = when {
-        mode.usesTorch -> if (flash == FlashOption.TORCH) FlashOption.TORCH else FlashOption.OFF
-        flash == FlashOption.TORCH -> FlashOption.OFF
+        flash == FlashOption.TORCH -> FlashOption.TORCH
+        mode.usesTorch -> FlashOption.OFF
         else -> flash
     }
 
@@ -1062,7 +1069,6 @@ class CameraController(
         return newState
     }
 
-    @Suppress("unused")
     fun enableTorch(enable: Boolean): Boolean {
         val cam = camera ?: return false
         if (!cam.cameraInfo.hasFlashUnit()) return false
@@ -1076,7 +1082,6 @@ class CameraController(
         setManual(current.copy(iso = iso))
     }
 
-    @Suppress("unused")
     fun setProExposureNs(ns: Long?) {
         val current = _state.value.manual
         setManual(current.copy(exposureNs = ns))
@@ -1106,7 +1111,7 @@ class CameraController(
     private fun applyFlash() {
         val st = _state.value
         val cam = camera ?: return
-        val torch = st.mode.usesTorch && st.flash == FlashOption.TORCH && cam.cameraInfo.hasFlashUnit()
+        val torch = st.flash == FlashOption.TORCH && cam.cameraInfo.hasFlashUnit()
         cam.cameraControl.enableTorch(torch)
         if (torch && st.torchStrengthAdjustable && settings.torchLevel != null) {
             // Only once the user has chosen a level; otherwise the device default stays in effect.
@@ -1114,7 +1119,7 @@ class CameraController(
         }
         val ic = imageCapture ?: return
         // The VIDEO snapshot capture must never fire the flash into the recording.
-        if (st.mode.usesTorch) {
+        if (st.mode.usesTorch || torch) {
             ic.flashMode = ImageCapture.FLASH_MODE_OFF
             return
         }

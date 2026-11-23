@@ -14,7 +14,7 @@ import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
- * Memory-safe image decoding that honours EXIF orientation.
+ * Memory-safe image decoding that honors EXIF orientation.
  *
  * API 28+ uses ImageDecoder (applies orientation itself and downsamples in the
  * decoder). Older versions sample with BitmapFactory and rotate via ExifInterface.
@@ -42,7 +42,7 @@ object BitmapDecoding {
         }
 
     /**
-     * Decodes at full resolution for re-encoding (photo editor), honouring EXIF
+     * Decodes at full resolution for re-encoding (photo editor), honoring EXIF
      * orientation. Only images above [maxPixels] are downsampled — see
      * [MAX_FULL_RESOLUTION_PIXELS]. Returns a mutable-safe software bitmap or null.
      */
@@ -59,7 +59,7 @@ object BitmapDecoding {
             legacyDecode(open = { resolver.openInputStream(uri) }, limit = limit)
         }
 
-    /** How far a decode may be scaled down for a source of the given size. */
+    /** How far a decoding operation may be scaled down for a source of the given size. */
     private sealed interface SizeLimit {
         /** Exact scale factor (≤ 1) for decoders that resample freely. */
         fun scale(width: Int, height: Int): Float

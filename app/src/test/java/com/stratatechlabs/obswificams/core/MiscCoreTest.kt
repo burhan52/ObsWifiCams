@@ -148,7 +148,7 @@ class HistogramTest {
         val buf = plane(IntArray(16 * 16) { 128 })
         val h = Histogram.fromLuma(buf, 16, 16, 16, step = 4)
         assertEquals(16L, h.total)
-        assertEquals(128f + 2f, h.meanLuma(), 0.01f) // centre of bin 32 with 4-wide bins
+        assertEquals(128f + 2f, h.meanLuma(), 0.01f) // center of bin 32 with 4-wide bins
     }
 
     @Test

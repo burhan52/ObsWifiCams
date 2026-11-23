@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
  * Luminance histogram computed straight from a YUV_420_888 Y plane.
  *
  * Works on a [ByteBuffer] plus strides so it can consume CameraX ImageProxy
- * planes without copying; sub-sampling keeps it well under 1 ms per frame.
+ * planes without copying; subsampling keeps it well under 1 ms per frame.
  */
 class Histogram(val bins: IntArray) {
 
@@ -16,7 +16,7 @@ class Histogram(val bins: IntArray) {
 
     val total: Long get() = bins.fold(0L) { acc, v -> acc + v }
 
-    /** Bin counts normalised to 0..1 against the tallest bin. */
+    /** Bin counts normalized to 0..1 against the tallest bin. */
     fun normalized(): FloatArray {
         val max = bins.maxOrNull()?.takeIf { it > 0 } ?: return FloatArray(bins.size)
         return FloatArray(bins.size) { bins[it].toFloat() / max }

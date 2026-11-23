@@ -49,7 +49,7 @@ class PeakingMask(val width: Int, val height: Int, val step: Int, val cells: Boo
  * YUV_420_888 luminance plane so it can run on every analysis frame.
  *
  * Gradient magnitude is the sum of absolute central differences on a grid
- * sub-sampled by `step`. The threshold adapts to the scene: only the strongest
+ * subsampled by `step`. The threshold adapts to the scene: only the strongest
  * `topFraction` of cells are highlighted, and never cells below `minGradient`,
  * so a defocused or flat frame shows (almost) nothing instead of noise.
  */
@@ -89,7 +89,7 @@ object FocusPeaking {
         val h = height / step
         val limit = yPlane.limit()
 
-        // Sub-sampled luma grid; out-of-buffer samples (truncated last row) read as 0.
+        // Subsampled luma grid; out-of-buffer samples (truncated last row) read as 0.
         val luma = scratch.luma(w * h)
         for (y in 0 until h) {
             val rowOffset = y * step * rowStride

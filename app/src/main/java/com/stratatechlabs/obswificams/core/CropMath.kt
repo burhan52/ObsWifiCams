@@ -74,7 +74,7 @@ data class EditTransform(val rotation: Int = 0, val flipped: Boolean = false) {
 
 /**
  * A complete non-destructive edit: [transform] first, then [crop] (fractions of the
- * transformed image). [aspect] is kept so the saved pixels honour the ratio exactly.
+ * transformed image). [aspect] is kept so the saved pixels honor the ratio exactly.
  */
 data class PhotoEdit(
     val transform: EditTransform = EditTransform(),
@@ -336,7 +336,7 @@ object CropMath {
 
     /**
      * Edge drag with a locked ratio: the opposite edge stays fixed, the perpendicular
-     * size follows the ratio and stays centred on the original centre line, shifted
+     * size follows the ratio and stays centered on the original center line, shifted
      * back inside the bounds where needed.
      */
     private fun lockedEdgeResize(

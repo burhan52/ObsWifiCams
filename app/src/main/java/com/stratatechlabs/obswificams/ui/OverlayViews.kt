@@ -51,15 +51,15 @@ class GridOverlayView @JvmOverloads constructor(context: Context, attrs: Attribu
     override fun onDraw(canvas: Canvas) {
         val w = width.toFloat()
         val h = height.toFloat()
-        val lines = GridGeometry.lines(option, w, h)
-        lines.vertical.forEach { canvas.drawLine(it * w, 0f, it * w, h, paint) }
-        lines.horizontal.forEach { canvas.drawLine(0f, it * h, w, it * h, paint) }
+        val (vertical, horizontal) = GridGeometry.lines(option, w, h)
+        vertical.forEach { canvas.drawLine(it * w, 0f, it * w, h, paint) }
+        horizontal.forEach { canvas.drawLine(0f, it * h, w, it * h, paint) }
     }
 }
 
 /**
- * Horizon level: a line through the centre that tilts with the device and
- * turns the accent colour when within half a degree of level. Registers its
+ * Horizon level: a line through the center that tilts with the device and
+ * turns the accent color when within half a degree of level. Registers its
  * accelerometer listener only while attached and [active].
  */
 class LevelView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
@@ -109,7 +109,7 @@ class LevelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     private fun updateRegistration() {
-        val shouldListen = active && isAttachedToWindow && windowVisibility == VISIBLE && accelerometer != null
+        val shouldListen = active && isAttachedToWindow && (windowVisibility == VISIBLE) && (accelerometer != null)
         if (shouldListen && !registered) {
             registered = sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
         } else if (!shouldListen) {
@@ -141,7 +141,7 @@ class LevelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         invalidate()
     }
 
-    /** True when the horizon line is drawn in the accent colour (within [LEVEL_TOLERANCE_DEG]). */
+    /** True when the horizon line is drawn in the accent color (within [LEVEL_TOLERANCE_DEG]). */
     internal val isLevel: Boolean get() = !flat && abs(tilt) < LEVEL_TOLERANCE_DEG
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
@@ -160,7 +160,7 @@ class LevelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     companion object {
-        /** Tilt (degrees) within which the line counts as level and turns the accent colour. */
+        /** Tilt (degrees) within which the line counts as level and turns the accent color. */
         const val LEVEL_TOLERANCE_DEG = 0.5f
     }
 }
@@ -295,7 +295,7 @@ class HistogramView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 }
 
-/** Draws brackets around detected barcodes, or a centred reticle when none are visible. */
+/** Draws brackets around detected barcodes, or a centered reticle when none are visible. */
 class BarcodeOverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
 
     private val density = resources.displayMetrics.density

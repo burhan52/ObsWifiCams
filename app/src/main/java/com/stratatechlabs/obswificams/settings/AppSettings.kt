@@ -149,7 +149,7 @@ class AppSettings(private val prefs: SharedPreferences) {
         get() = AspectOption.fromKey(prefs.getString(Keys.ASPECT, AspectOption.RATIO_4_3.key))
         set(value) = prefs.edit { putString(Keys.ASPECT, value.key) }
 
-    /** Torch brightness level (1..max) on devices with adjustable torch strength; null = device default. */
+    /** Torch brightness level (1 to max) on devices with adjustable torch strength; null = device default. */
     var torchLevel: Int?
         get() = prefs.getInt(Keys.TORCH_LEVEL, 0).takeIf { it > 0 }
         set(value) = prefs.edit { if (value == null) remove(Keys.TORCH_LEVEL) else putInt(Keys.TORCH_LEVEL, value) }

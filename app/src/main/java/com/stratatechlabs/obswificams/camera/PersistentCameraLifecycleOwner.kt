@@ -11,11 +11,13 @@ import androidx.lifecycle.LifecycleRegistry
  * as long as [keepAlive] returns true (i.e. Wi-Fi camera streaming or recording is active).
  */
 class PersistentCameraLifecycleOwner(
-    private val parent: LifecycleOwner,
+    parent: LifecycleOwner?,
     private val keepAlive: () -> Boolean,
 ) : LifecycleOwner {
 
     override val lifecycle: LifecycleRegistry = LifecycleRegistry(this)
+
+    private var currentParent: LifecycleOwner? = parent
 
     private val observer = LifecycleEventObserver { _, event ->
         when (event) {
@@ -33,14 +35,30 @@ class PersistentCameraLifecycleOwner(
                 }
             }
             Lifecycle.Event.ON_DESTROY -> {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                detachParent()
+                if (!keepAlive()) {
+                    lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                }
             }
             Lifecycle.Event.ON_ANY -> Unit
         }
     }
 
     init {
-        parent.lifecycle.addObserver(observer)
+        currentParent?.lifecycle?.addObserver(observer)
+    }
+
+    fun attachParent(newParent: LifecycleOwner) {
+        if (currentParent === newParent) return
+        detachParent()
+        currentParent = newParent
+        newParent.lifecycle.addObserver(observer)
+        onBackgroundStateChanged()
+    }
+
+    fun detachParent() {
+        currentParent?.lifecycle?.removeObserver(observer)
+        currentParent = null
     }
 
     /**
@@ -49,9 +67,13 @@ class PersistentCameraLifecycleOwner(
      * or moves camera to match parent state when background work has concluded.
      */
     fun onBackgroundStateChanged() {
+        val parentState = currentParent?.lifecycle?.currentState
         if (!keepAlive()) {
-            val parentState = parent.lifecycle.currentState
-            if ((parentState == Lifecycle.State.CREATED) && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            if (parentState == null || parentState == Lifecycle.State.DESTROYED) {
+                if (lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                }
+            } else if ((parentState == Lifecycle.State.CREATED) && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
             } else if ((parentState == Lifecycle.State.STARTED) && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                 lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -67,7 +89,7 @@ class PersistentCameraLifecycleOwner(
     }
 
     fun release() {
-        parent.lifecycle.removeObserver(observer)
+        detachParent()
         if (lifecycle.currentState != Lifecycle.State.DESTROYED) {
             lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         }

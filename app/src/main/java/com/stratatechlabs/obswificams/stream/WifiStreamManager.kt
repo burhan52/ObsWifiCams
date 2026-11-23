@@ -11,6 +11,8 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
+import android.net.Uri
+import android.view.OrientationEventListener
 import androidx.camera.core.ImageProxy
 import androidx.core.graphics.createBitmap
 import com.stratatechlabs.obswificams.camera.CameraController
@@ -18,6 +20,7 @@ import com.stratatechlabs.obswificams.camera.RecordingStatus
 import com.stratatechlabs.obswificams.core.AspectOption
 import com.stratatechlabs.obswificams.core.CaptureMode
 import com.stratatechlabs.obswificams.core.FlashOption
+import com.stratatechlabs.obswificams.core.OrientationMath
 import com.stratatechlabs.obswificams.core.StreamFps
 import com.stratatechlabs.obswificams.core.StreamQuality
 import com.stratatechlabs.obswificams.settings.AppSettings
@@ -25,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import android.net.Uri
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.concurrent.ExecutorService
@@ -37,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 enum class StreamFilter(val key: String) {
     NONE("none"),
+    IMAX("imax"),
     BLURAY("bluray"),
     TEAL_ORANGE("tealorange"),
     VIVID("vivid"),
@@ -118,6 +121,22 @@ class WifiStreamManager(
     private val targetFrameIntervalMs = AtomicLong(settings.wifiShareFps.intervalMs)
     private val currentFrameIntervalMs = AtomicLong(settings.wifiShareFps.intervalMs)
 
+    private var lastSnappedOrientation = -1
+    private val orientationListener by lazy {
+        object : OrientationEventListener(context) {
+            override fun onOrientationChanged(degrees: Int) {
+                if (degrees == ORIENTATION_UNKNOWN) return
+                val snapped = OrientationMath.snap(
+                    degrees,
+                    if (lastSnappedOrientation >= 0) lastSnappedOrientation else 0,
+                )
+                if (snapped == lastSnappedOrientation) return
+                lastSnappedOrientation = snapped
+                controller.setTargetRotation(OrientationMath.surfaceRotation(snapped))
+            }
+        }
+    }
+
     private val reusableBaos = ByteArrayOutputStream(128 * 1024)
 
     private var congestionTicks = 0
@@ -177,8 +196,11 @@ class WifiStreamManager(
             }
 
             override fun onSwitchCamera(): Boolean {
-                mainHandler.post { onSwitchCameraRequested() }
-                return true
+                val ready = controller.state.value.ready
+                if (ready) {
+                    mainHandler.post { onSwitchCameraRequested() }
+                }
+                return ready
             }
 
             override fun onSelectLens(lensId: String): Boolean {
@@ -216,8 +238,11 @@ class WifiStreamManager(
             }
 
             override fun onTriggerCapture(): Boolean {
-                mainHandler.post { onTriggerCaptureRequested() }
-                return true
+                val ready = controller.state.value.ready
+                if (ready) {
+                    mainHandler.post { onTriggerCaptureRequested() }
+                }
+                return ready
             }
 
             override fun onToggleRecording(): Boolean {
@@ -289,6 +314,11 @@ class WifiStreamManager(
                 return true
             }
 
+            override fun onSetProExposureNs(ns: Long?): Boolean {
+                mainHandler.post { controller.setProExposureNs(ns) }
+                return true
+            }
+
             override fun onSetProAwb(awb: Int?): Boolean {
                 mainHandler.post { controller.setProAwb(awb) }
                 return true
@@ -314,7 +344,6 @@ class WifiStreamManager(
                 _state.update { it.copy(clientCount = count) }
             }
 
-            @Suppress("DestructuringDeclaration")
             override fun getStatusInfo(): WifiCameraServer.StatusInfo {
                 val (isStreaming, _, _, clientCount, fps, quality, effQuality, tfps, isTorchOn, _, autoAdjust, rotation) = _state.value
                 val camState = controller.state.value
@@ -388,6 +417,9 @@ class WifiStreamManager(
             val hwQuality = if (quality == StreamQuality.AUTO) StreamQuality.FHD_1080P else quality
             controller.streamQuality = hwQuality
             controller.setWifiFrameConsumer { proxy -> onCameraFrame(proxy) }
+            if (orientationListener.canDetectOrientation()) {
+                orientationListener.enable()
+            }
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start streaming server on port $port", e)
@@ -401,6 +433,7 @@ class WifiStreamManager(
     fun stopStreaming() {
         if (!_state.value.isStreaming) return
 
+        orientationListener.disable()
         controller.setWifiFrameConsumer(null)
 
         audioStreamer?.close()
@@ -659,7 +692,7 @@ class WifiStreamManager(
 
         val needsTransform = (rotation != 0) || mirror || (scale < 1.0f)
 
-        val transformedBitmap = if (needsTransform) {
+        var transformedBitmap = if (needsTransform) {
             val matrix = Matrix()
             if (mirror) matrix.preScale(-1f, 1f)
             if (rotation != 0) matrix.postRotate(rotation.toFloat())
@@ -667,6 +700,36 @@ class WifiStreamManager(
             Bitmap.createBitmap(src, 0, 0, srcW, srcH, matrix, true)
         } else {
             src
+        }
+
+        // Apply Aspect Ratio center-cropping matching controller.state.value.aspect
+        val aspectOption = controller.state.value.aspect
+        val w = transformedBitmap.width
+        val h = transformedBitmap.height
+        val targetRatio = when (aspectOption) {
+            AspectOption.RATIO_1_1 -> 1.0f
+            AspectOption.RATIO_16_9 -> if (w >= h) (16.0f / 9.0f) else (9.0f / 16.0f)
+            AspectOption.RATIO_4_3 -> if (w >= h) (4.0f / 3.0f) else (3.0f / 4.0f)
+        }
+        val currentRatio = w.toFloat() / h.toFloat()
+
+        if (kotlin.math.abs(currentRatio - targetRatio) > 0.03f) {
+            val cropW: Int
+            val cropH: Int
+            if (currentRatio > targetRatio) {
+                cropH = h
+                cropW = (h * targetRatio).toInt().coerceAtMost(w)
+            } else {
+                cropW = w
+                cropH = (w / targetRatio).toInt().coerceAtMost(h)
+            }
+            val cropX = (w - cropW) / 2
+            val cropY = (h - cropH) / 2
+            if (cropW > 0 && cropH > 0) {
+                val cropped = Bitmap.createBitmap(transformedBitmap, cropX, cropY, cropW, cropH)
+                if (transformedBitmap !== src) transformedBitmap.recycle()
+                transformedBitmap = cropped
+            }
         }
 
         return if (filter != StreamFilter.NONE) {
@@ -682,8 +745,22 @@ class WifiStreamManager(
         if (filter == StreamFilter.NONE) return bitmap
         val matrix = ColorMatrix()
         when (filter) {
+            StreamFilter.IMAX -> {
+                // IMAX 70mm Cinematic: Expansive dynamic range, deep rich contrast, crisp clarity,
+                // vibrant saturation, and signature 70mm film stock color depth.
+                val sat = ColorMatrix().apply { setSaturation(1.25f) }
+                val imaxGrading = ColorMatrix(
+                    floatArrayOf(
+                        1.15f,  0.02f, -0.04f, 0f, -10f,
+                        0.01f,  1.12f, -0.02f, 0f, -10f,
+                        -0.04f, -0.02f, 1.22f, 0f,  -4f,
+                        0.00f,  0.00f,  0.00f, 1f,   0f,
+                    ),
+                )
+                matrix.setConcat(imaxGrading, sat)
+            }
             StreamFilter.BLURAY -> {
-                // High-fidelity Blu-Ray remaster: Deep blacks, crisp contrast, vibrant saturation,
+                // High-fidelity Blu-ray remaster: Deep blacks, crisp contrast, vibrant saturation,
                 // and a subtle cool film tone while preserving natural skin tones.
                 val sat = ColorMatrix().apply { setSaturation(1.18f) }
                 val filmTone = ColorMatrix(
