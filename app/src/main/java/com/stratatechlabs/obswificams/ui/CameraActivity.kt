@@ -321,14 +321,20 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(stopStreamingReceiver) }
-        CameraStreamingForegroundService.stop(this)
-        cameraLifecycleOwner.release()
+        val keepAlive = (::wifiStreamManager.isInitialized && wifiStreamManager.state.value.isStreaming) ||
+            (::controller.isInitialized && (controller.isRecording || (controller.state.value.recording != RecordingStatus.IDLE)))
+
         settings.unregisterListener(prefListener)
         orientationListener.disable()
         binding.root.removeCallbacks(deferredIconTurn)
         getSystemService(DisplayManager::class.java).unregisterDisplayListener(displayListener)
-        wifiStreamManager.close()
-        controller.release()
+
+        if (!keepAlive) {
+            CameraStreamingForegroundService.stop(this)
+            cameraLifecycleOwner.release()
+            wifiStreamManager.close()
+            controller.release()
+        }
         feedback.release()
         super.onDestroy()
     }

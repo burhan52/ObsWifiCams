@@ -28,6 +28,8 @@ class CameraStreamingForegroundService : Service() {
 
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
+    private var lastStreamUrl: String = ""
+    private var lastIsRecording: Boolean = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -43,13 +45,24 @@ class CameraStreamingForegroundService : Service() {
             return START_NOT_STICKY
         }
 
-        val streamUrl = intent?.getStringExtra(EXTRA_STREAM_URL) ?: ""
-        val isRecording = intent?.getBooleanExtra(EXTRA_IS_RECORDING, false) ?: false
+        val streamUrl = intent?.getStringExtra(EXTRA_STREAM_URL) ?: lastStreamUrl
+        val isRecording = intent?.getBooleanExtra(EXTRA_IS_RECORDING, false) ?: lastIsRecording
+        lastStreamUrl = streamUrl
+        lastIsRecording = isRecording
 
         acquireLocks()
         startForegroundWithNotification(streamUrl, isRecording)
 
         return START_STICKY
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Log.i("CameraStreamService", "App task removed from Recents; maintaining foreground streaming service")
+        if (lastStreamUrl.isNotEmpty() || lastIsRecording) {
+            acquireLocks()
+            startForegroundWithNotification(lastStreamUrl, lastIsRecording)
+        }
     }
 
     private fun acquireLocks() {

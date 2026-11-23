@@ -159,23 +159,100 @@ object WebStreamHtml {
       }
     }
 
-    /* Video player */
+    /* YouTube-Style Video Player Frame */
     .video-panel {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
+    .yt-player-frame {
+      background: #0f0f0f;
+      border: 1px solid #272727;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .yt-player-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: #181818;
+      border-bottom: 1px solid #272727;
+      font-size: 0.8rem;
+    }
+    .yt-live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #ff0000;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    .yt-live-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #ff0000;
+      border-radius: 50%;
+      animation: yt-pulse 1.4s infinite;
+    }
+    @keyframes yt-pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.25); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .yt-aspect-selector {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #0f0f0f;
+      border: 1px solid #272727;
+      border-radius: 6px;
+      padding: 2px;
+    }
+    .yt-aspect-btn {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .yt-aspect-btn.active, .yt-aspect-btn:hover {
+      background: #ff0000;
+      color: #fff;
+    }
+
     .video-viewport {
       position: relative;
       background: #000;
-      border-radius: 12px;
       overflow: hidden;
-      aspect-ratio: 16 / 9;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: aspect-ratio 0.3s ease, max-height 0.3s ease;
+      min-height: 240px;
+    }
+    .video-viewport.aspect-16-9 {
+      aspect-ratio: 16 / 9;
+      max-height: none;
+    }
+    .video-viewport.aspect-9-16 {
+      aspect-ratio: 9 / 16;
+      max-height: 70vh;
+      margin: 0 auto;
+    }
+    .video-viewport.aspect-auto {
+      aspect-ratio: auto;
+      max-height: 75vh;
     }
     .video-viewport img {
       width: 100%;
@@ -185,6 +262,58 @@ object WebStreamHtml {
     }
     .video-viewport.mirrored img {
       transform: scaleX(-1);
+    }
+
+    /* YouTube Player Controls Bar */
+    .yt-controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #121212;
+      border-top: 1px solid #272727;
+      padding: 8px 12px;
+    }
+    .yt-controls-left, .yt-controls-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .yt-btn {
+      background: #212121;
+      border: 1px solid #333;
+      color: #f1f1f1;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+    .yt-btn:hover {
+      background: #383838;
+      border-color: #ff0000;
+      color: #fff;
+    }
+    .yt-btn.active {
+      background: #ff0000;
+      color: #fff;
+      border-color: #ff0000;
+    }
+    .yt-volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .yt-volume-slider {
+      width: 70px;
+      accent-color: #ff0000;
+      cursor: pointer;
     }
 
     /* Live Filters - Stream is hardware-graded by camera server; no double-filtering */
@@ -431,50 +560,54 @@ object WebStreamHtml {
     </header>
 
     <div class="studio-layout">
-      <!-- Left Column: Video Viewport + Audio Controls -->
+      <!-- Left Column: YouTube-Style Video Player & Toolbar -->
       <div class="video-panel">
-        <div class="video-viewport" id="viewport">
-          <img id="streamImg" class="filter-none" src="/video.mjpeg" alt="Live Camera Video Stream" />
-        </div>
-
-        <!-- Audio & Stream Control Bar -->
-        <div class="audio-toolbar">
-          <button class="audio-btn" id="audioToggleBtn" onclick="toggleAudioPlayback()">
-            <span id="audioIcon">🔈</span> <span id="audioBtnText">Unmute Real-Time Audio</span>
-          </button>
-
-          <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setAudioVolume(this.value)" style="max-width: 90px;" title="Audio Volume">
-
-          <div class="vu-meter-container">
-            <span class="vu-meter-label">Mic VU</span>
-            <div class="vu-meter-bar">
-              <div class="vu-meter-fill" id="vuFill"></div>
+        <div class="yt-player-frame">
+          <!-- YouTube Top Player Header -->
+          <div class="yt-player-header">
+            <div class="yt-live-badge">
+              <span class="yt-live-dot"></span>
+              <span>LIVE CAMERA STREAM</span>
             </div>
-            <span class="slider-val" id="vuText" style="min-width: 32px;">0%</span>
+            <div class="yt-aspect-selector">
+              <button class="yt-aspect-btn active" data-aspect="auto" onclick="setAspectMode('auto')" title="Auto-detect orientation (Portrait or Landscape)">📐 Auto</button>
+              <button class="yt-aspect-btn" data-aspect="16-9" onclick="setAspectMode('16-9')" title="16:9 Landscape Mode">📺 16:9</button>
+              <button class="yt-aspect-btn" data-aspect="9-16" onclick="setAspectMode('9-16')" title="9:16 Portrait Mode">📱 9:16</button>
+            </div>
           </div>
 
-          <button class="audio-btn tea-btn" onclick="sendRewardTea()" title="Reward Tea to Streamer">
-            <svg class="tea-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle; margin-right:4px;">
-              <path d="M6,2c0.55,0 1,0.45 1,1v1c0,0.55 -0.45,1 -1,1s-1,-0.45 -1,-1V3C5,2.45 5.45,2 6,2zM10,1c0.55,0 1,0.45 1,1v2c0,0.55 -0.45,1 -1,1s-1,-0.45 -1,-1V2C9,1.45 9.45,1 10,1zM14,2c0.55,0 1,0.45 1,1v1c0,0.55 -0.45,1 -1,1s-1,-0.45 -1,-1V3C13,2.45 13.45,2 14,2z" />
-              <path d="M20,6H4v8c0,2.21 1.79,4 4,4h6c2.21,0 4,-1.79 4,-4v-2h2c1.1,0 2,-0.9 2,-2V8C22,6.9 21.1,6 20,6zM20,10h-2V8h2V10zM2,20h18c0.55,0 1,0.45 1,1s-0.45,1 -1,1H2c-0.55,0 -1,-0.45 -1,-1S1.45,20 2,20z" />
-            </svg>Reward Tea
-          </button>
+          <!-- YouTube Player Viewport -->
+          <div class="video-viewport aspect-auto" id="viewport">
+            <img id="streamImg" class="filter-none" src="/video.mjpeg" alt="Live Camera Stream" />
+          </div>
 
-          <button class="audio-btn" onclick="saveSnapshotToPc()" title="Save current frame as JPEG to PC">
-            <span>📷</span> Snap to PC
-          </button>
-          <button class="audio-btn" onclick="toggleMirror()" title="Flip horizontally">
-            <span>⇄</span> Mirror
-          </button>
-          <button class="audio-btn" onclick="rotateNext()" title="Rotate Stream 90°">
-            <span>⟳</span> Rotate <span id="rotBadge" style="font-size:0.75rem; color:var(--accent);">0°</span>
-          </button>
-          <button class="audio-btn" onclick="toggleFullscreen()" title="Fullscreen">
-            <span>⛶</span> Fullscreen
-          </button>
-          <button class="audio-btn" onclick="reconnectStream()" title="Reload video and audio">
-            <span>⟳</span> Reload
-          </button>
+          <!-- YouTube Player Controls Bar -->
+          <div class="yt-controls-bar">
+            <div class="yt-controls-left">
+              <button class="yt-btn" id="audioToggleBtn" onclick="toggleAudioPlayback()" title="Mute / Unmute Real-Time Audio">
+                <span id="audioIcon">🔈</span> <span id="audioBtnText">Unmute</span>
+              </button>
+              <div class="yt-volume-wrap">
+                <input type="range" class="yt-volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" oninput="setAudioVolume(this.value)" title="Volume">
+              </div>
+              <div class="vu-meter-container" style="max-width:110px;">
+                <span class="vu-meter-label">VU</span>
+                <div class="vu-meter-bar">
+                  <div class="vu-meter-fill" id="vuFill"></div>
+                </div>
+                <span class="slider-val" id="vuText" style="min-width: 28px; font-size: 0.7rem;">0%</span>
+              </div>
+            </div>
+
+            <div class="yt-controls-right">
+              <button class="yt-btn tea-btn" onclick="sendRewardTea()" title="Reward Tea to Streamer">☕ Tea</button>
+              <button class="yt-btn" onclick="saveSnapshotToPc()" title="Save frame as JPEG to PC">📷 Snap</button>
+              <button class="yt-btn" onclick="toggleMirror()" title="Flip horizontally">⇄ Mirror</button>
+              <button class="yt-btn" onclick="rotateNext()" title="Rotate Stream 90°">⟳ Rot <span id="rotBadge" style="font-size:0.7rem; color:var(--accent);">0°</span></button>
+              <button class="yt-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+              <button class="yt-btn" onclick="reconnectStream()" title="Reload Stream">🔄</button>
+            </div>
+          </div>
         </div>
 
         <!-- Hidden audio element as fallback -->
@@ -908,6 +1041,55 @@ object WebStreamHtml {
     function toggleMirror() {
       viewport.classList.toggle('mirrored');
     }
+
+    // Aspect ratio mode: 'auto', '16-9', or '9-16'
+    let aspectMode = localStorage.getItem('obs_player_aspect') || 'auto';
+
+    function setAspectMode(mode) {
+      aspectMode = mode;
+      try { localStorage.setItem('obs_player_aspect', mode); } catch(e) {}
+      document.querySelectorAll('.yt-aspect-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-aspect') === mode);
+      });
+      applyAspectMode();
+    }
+
+    function applyAspectMode() {
+      if (!viewport) return;
+      viewport.classList.remove('aspect-16-9', 'aspect-9-16', 'aspect-auto');
+      if (aspectMode === '16-9') {
+        viewport.classList.add('aspect-16-9');
+        viewport.style.aspectRatio = '16 / 9';
+        viewport.style.maxHeight = 'none';
+      } else if (aspectMode === '9-16') {
+        viewport.classList.add('aspect-9-16');
+        viewport.style.aspectRatio = '9 / 16';
+        viewport.style.maxHeight = '70vh';
+      } else {
+        viewport.classList.add('aspect-auto');
+        autoDetectStreamAspect();
+      }
+    }
+
+    function autoDetectStreamAspect() {
+      if (aspectMode !== 'auto' || !streamImg || !viewport) return;
+      const nw = streamImg.naturalWidth;
+      const nh = streamImg.naturalHeight;
+      if (nw > 0 && nh > 0) {
+        if (nh > nw) {
+          viewport.style.aspectRatio = '9 / 16';
+          viewport.style.maxHeight = '70vh';
+        } else {
+          viewport.style.aspectRatio = '16 / 9';
+          viewport.style.maxHeight = 'none';
+        }
+      } else {
+        viewport.style.aspectRatio = '16 / 9';
+        viewport.style.maxHeight = 'none';
+      }
+    }
+
+    streamImg.addEventListener('load', autoDetectStreamAspect);
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
@@ -1761,8 +1943,9 @@ object WebStreamHtml {
       }
     });
 
-    // Initialize save destination and UI labels
+    // Initialize save destination, aspect mode and UI labels
     setSaveDestination(saveDestination);
+    setAspectMode(aspectMode);
 
     setInterval(updateStatus, 800);
     updateStatus();
