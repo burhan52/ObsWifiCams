@@ -54,24 +54,32 @@ class CameraStreamingForegroundService : Service() {
 
     private fun acquireLocks() {
         if (wakeLock == null) {
-            val pm = getSystemService(PowerManager::class.java)
-            wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ObsWifiCams:StreamingLock")?.apply {
-                setReferenceCounted(false)
-                acquire(24 * 60 * 60 * 1000L) // 24 hours max
+            try {
+                val pm = getSystemService(PowerManager::class.java)
+                wakeLock = pm?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ObsWifiCams:StreamingLock")?.apply {
+                    setReferenceCounted(false)
+                    acquire(24 * 60 * 60 * 1000L) // 24 hours max
+                }
+            } catch (e: Exception) {
+                Log.e("CameraStreamService", "Failed to acquire PARTIAL_WAKE_LOCK", e)
             }
         }
 
         if (wifiLock == null) {
-            val wm = applicationContext.getSystemService(WifiManager::class.java)
-            val lockMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                WifiManager.WIFI_MODE_FULL_LOW_LATENCY
-            } else {
-                @Suppress("DEPRECATION")
-                WifiManager.WIFI_MODE_FULL_HIGH_PERF
-            }
-            wifiLock = wm?.createWifiLock(lockMode, "ObsWifiCams:WifiStreamLock")?.apply {
-                setReferenceCounted(false)
-                acquire()
+            try {
+                val wm = applicationContext.getSystemService(WifiManager::class.java)
+                val lockMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+                } else {
+                    @Suppress("DEPRECATION")
+                    WifiManager.WIFI_MODE_FULL_HIGH_PERF
+                }
+                wifiLock = wm?.createWifiLock(lockMode, "ObsWifiCams:WifiStreamLock")?.apply {
+                    setReferenceCounted(false)
+                    acquire()
+                }
+            } catch (e: Exception) {
+                Log.e("CameraStreamService", "Failed to acquire WifiLock", e)
             }
         }
     }
@@ -99,6 +107,16 @@ class CameraStreamingForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        val stopIntent = Intent(this, CameraStreamingForegroundService::class.java).apply {
+            action = ACTION_STOP
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            this,
+            1,
+            stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
         val text = buildString {
             if (streamUrl.isNotEmpty()) append("Streaming: $streamUrl")
             if (isRecording) {
@@ -113,6 +131,7 @@ class CameraStreamingForegroundService : Service() {
             .setSmallIcon(R.drawable.ic_camera)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
+            .addAction(0, "Stop Streaming", stopPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
@@ -154,6 +173,7 @@ class CameraStreamingForegroundService : Service() {
     private fun stopForegroundService() {
         releaseLocks()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        sendBroadcast(Intent(ACTION_STOP_STREAMING_REQUEST).setPackage(packageName))
         stopSelf()
     }
 
@@ -183,6 +203,7 @@ class CameraStreamingForegroundService : Service() {
 
         const val ACTION_START = "com.stratatechlabs.obswificams.START_STREAM_SERVICE"
         const val ACTION_STOP = "com.stratatechlabs.obswificams.STOP_STREAM_SERVICE"
+        const val ACTION_STOP_STREAMING_REQUEST = "com.stratatechlabs.obswificams.STOP_STREAMING_REQUEST"
 
         const val EXTRA_STREAM_URL = "extra_stream_url"
         const val EXTRA_IS_RECORDING = "extra_is_recording"

@@ -131,6 +131,19 @@ class CameraActivity : AppCompatActivity() {
     private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> settingsDirty = true }
     private var settingsDirty = false
 
+    private val stopStreamingReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: Intent?) {
+            if (intent?.action == CameraStreamingForegroundService.ACTION_STOP_STREAMING_REQUEST) {
+                if (::wifiStreamManager.isInitialized && wifiStreamManager.state.value.isStreaming) {
+                    wifiStreamManager.stopStreaming()
+                }
+                if (::controller.isInitialized && controller.isRecording) {
+                    controller.stopRecording()
+                }
+            }
+        }
+    }
+
     private val requiredPermissions: Array<String>
         get() = buildList {
             add(Manifest.permission.CAMERA)
@@ -221,6 +234,12 @@ class CameraActivity : AppCompatActivity() {
             this,
             object : OnBackPressedCallback(enabled = true) {
                 override fun handleOnBackPressed() {
+                    val isStreaming = ::wifiStreamManager.isInitialized && wifiStreamManager.state.value.isStreaming
+                    val isRecording = ::controller.isInitialized && (controller.isRecording || controller.state.value.recording != RecordingStatus.IDLE)
+                    if (isStreaming || isRecording) {
+                        moveTaskToBack(true)
+                        return
+                    }
                     val shown = AdManager.showBackInterstitial(this@CameraActivity) {
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
@@ -231,6 +250,13 @@ class CameraActivity : AppCompatActivity() {
                     }
                 }
             },
+        )
+
+        ContextCompat.registerReceiver(
+            this,
+            stopStreamingReceiver,
+            android.content.IntentFilter(CameraStreamingForegroundService.ACTION_STOP_STREAMING_REQUEST),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
         )
 
         binding.screenFlashView.setScreenFlashWindow(window)
@@ -294,6 +320,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        runCatching { unregisterReceiver(stopStreamingReceiver) }
         CameraStreamingForegroundService.stop(this)
         cameraLifecycleOwner.release()
         settings.unregisterListener(prefListener)
